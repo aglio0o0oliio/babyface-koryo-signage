@@ -1,0 +1,10 @@
+{
+  "name":"BABYFACE Planet's 広陵店 デジタルサイネージ",
+  "short_name":"BABYFACE広陵",
+  "start_url":"./",
+  "scope":"./",
+  "display":"standalone",
+  "orientation":"portrait",
+  "background_color":"#000000",
+  "theme_color":"#000000"
+}

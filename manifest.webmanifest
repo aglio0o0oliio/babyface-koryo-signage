@@ -1,10 +1,9 @@
 {
-  "name": "BABYFACE 広陵店 サイネージ",
+  "name": "BABYFACE Planet's 広陵店 サイネージ",
   "short_name": "BABYFACEサイネージ",
-  "start_url": "./index.html",
+  "start_url": "./",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#000000",
-  "theme_color": "#000000",
-  "icons": []
+  "theme_color": "#000000"
 }

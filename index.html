@@ -9,63 +9,71 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>BABYFACE Planet's 広陵店 Digital Signage</title>
 <style>
-html,body{
-  margin:0;
-  width:100%;
-  height:100%;
-  overflow:hidden;
-  background:#000;
-}
-body{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  touch-action:none;
-  user-select:none;
-}
-#stage{
-  position:relative;
-  width:100vw;
-  height:100vh;
-  overflow:hidden;
-  background:#fff;
-}
-.slide{
-  position:absolute;
-  inset:0;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  background:#fff;
-}
-.slide.active{display:flex;}
-.slide img,
-.slide video{
-  width:100%;
-  height:100%;
-  object-fit:contain;
-  object-position:center;
-  display:block;
-  background:#fff;
-}
-#fs{
-  position:fixed;
-  right:8px;
-  bottom:8px;
-  width:44px;
-  height:44px;
-  border:0;
-  background:transparent;
-  opacity:0;
-  z-index:1000;
-}
-@media (orientation:landscape){
-  #stage{
-    width:100vh;
-    height:100vw;
-    transform:rotate(90deg);
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #fff;
   }
-}
+
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    touch-action: none;
+    user-select: none;
+  }
+
+  /* P31 portrait: 1200 x 1920 = 5:8.
+     The stage always keeps this ratio so nothing is cropped. */
+  #stage {
+    position: relative;
+    width: min(100vw, 62.5vh);
+    height: min(100vh, 160vw);
+    aspect-ratio: 5 / 8;
+    overflow: hidden;
+    background: #fff;
+    flex: 0 0 auto;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+  }
+
+  .slide.active {
+    display: flex;
+  }
+
+  .slide img,
+  .slide video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    object-position: center center;
+    background: #fff;
+  }
+
+  #fs {
+    position: fixed;
+    right: 8px;
+    bottom: 8px;
+    width: 44px;
+    height: 44px;
+    border: 0;
+    background: transparent;
+    opacity: 0;
+    z-index: 1000;
+  }
 </style>
 </head>
 <body>
@@ -73,117 +81,109 @@ body{
   <div class="slide"><img src="ranking.png" alt=""></div>
   <div class="slide"><img src="payment.png" alt=""></div>
   <div class="slide drink-slide"><img src="drink.png" alt=""></div>
-  <div class="slide"><video id="instagramVideo" muted playsinline preload="auto"><source src="instagram.mp4" type="video/mp4"></video></div>
+  <div class="slide">
+    <video id="instagramVideo" muted playsinline preload="auto">
+      <source src="instagram.mp4" type="video/mp4">
+    </video>
+  </div>
   <div class="slide"><img src="food.jpg" alt=""></div>
   <div class="slide"><img src="dessert.jpg" alt=""></div>
 </div>
+
 <button id="fs" aria-label="fullscreen"></button>
 
 <script>
-(function(){
+(function () {
   const allSlides = Array.from(document.querySelectorAll(".slide"));
   const drinkSlide = document.querySelector(".drink-slide");
   const video = document.getElementById("instagramVideo");
   const SIX_SECONDS = 6000;
+
   let visibleSlides = [];
   let current = 0;
   let timer = null;
 
-  function drinkDay(){
+  function isDrinkDay() {
     return new Date().getDate() === 20;
   }
 
-  function rebuild(){
-    visibleSlides = allSlides.filter(function(slide){
-      return slide !== drinkSlide || drinkDay();
+  function rebuildSlides() {
+    visibleSlides = allSlides.filter(function (slide) {
+      return slide !== drinkSlide || isDrinkDay();
     });
   }
 
-  function show(position){
+  function show(index) {
     if (!visibleSlides.length) return;
 
-    if (position >= visibleSlides.length) position = 0;
-    current = position;
+    if (index >= visibleSlides.length) index = 0;
+    current = index;
 
-    allSlides.forEach(function(slide){
+    allSlides.forEach(function (slide) {
       slide.classList.remove("active");
     });
 
     const slide = visibleSlides[current];
     slide.classList.add("active");
 
-    if (video){
-      if (slide.contains(video)){
+    if (video) {
+      if (slide.contains(video)) {
         try {
           video.pause();
           video.currentTime = 0;
-          video.load();
-          const p = video.play();
-          if (p && p.catch) p.catch(function(){});
-        } catch(e) {}
+          const promise = video.play();
+          if (promise && promise.catch) promise.catch(function () {});
+        } catch (e) {}
       } else {
-        try { video.pause(); } catch(e) {}
+        try { video.pause(); } catch (e) {}
       }
     }
 
     clearTimeout(timer);
-    timer = setTimeout(function(){
-      rebuild();
-
-      // Keep the same slide when the list changes, otherwise advance.
-      const next = (current + 1) % visibleSlides.length;
-      show(next);
+    timer = setTimeout(function () {
+      rebuildSlides();
+      show((current + 1) % visibleSlides.length);
     }, SIX_SECONDS);
   }
 
-  function refreshForDate(){
-    const wasDrink = drinkDay();
-    rebuild();
-
-    // If the drink slide disappeared at midnight, restart safely.
-    if (current >= visibleSlides.length) current = 0;
-    show(current);
-  }
-
-  rebuild();
+  rebuildSlides();
   show(0);
 
-  // If the tablet stays on the page across midnight, update the 20th-only slide.
-  setInterval(function(){
-    const shouldShowDrink = drinkDay();
-    const isPresent = visibleSlides.indexOf(drinkSlide) !== -1;
-    if (shouldShowDrink !== isPresent){
-      rebuild();
+  // Detect the 20th when the page remains open overnight.
+  setInterval(function () {
+    const shouldShow = isDrinkDay();
+    const currentlyShown = visibleSlides.indexOf(drinkSlide) !== -1;
+
+    if (shouldShow !== currentlyShown) {
+      rebuildSlides();
       if (current >= visibleSlides.length) current = 0;
       show(current);
     }
   }, 60000);
 
-  // Try fullscreen where supported. The invisible button also permits a user tap.
-  async function fullscreen(){
-    try{
-      if (!document.fullscreenElement && document.documentElement.requestFullscreen){
+  async function goFullscreen() {
+    try {
+      if (!document.fullscreenElement &&
+          document.documentElement.requestFullscreen) {
         await document.documentElement.requestFullscreen();
       }
-    }catch(e){}
+    } catch (e) {}
   }
 
-  window.addEventListener("load", function(){
-    setTimeout(fullscreen, 500);
-    if (video){
-      video.muted = true;
-      video.setAttribute("muted","");
-      video.setAttribute("playsinline","");
-    }
+  window.addEventListener("load", function () {
+    setTimeout(goFullscreen, 500);
   });
 
-  document.addEventListener("click", fullscreen, {once:true, passive:true});
+  document.addEventListener("click", goFullscreen, {
+    once: true,
+    passive: true
+  });
 })();
 </script>
 
 <script>
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("./sw.js").catch(function(){});
+  navigator.serviceWorker.register("./sw.js").catch(function () {});
 }
 </script>
 </body>

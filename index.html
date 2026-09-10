@@ -2,156 +2,188 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#000000">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <title>BABYFACE Planet's 広陵店 Digital Signage</title>
 <style>
-  html, body {
-    margin: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    background: #000;
+html,body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#000;
+}
+body{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  touch-action:none;
+  user-select:none;
+}
+#stage{
+  position:relative;
+  width:100vw;
+  height:100vh;
+  overflow:hidden;
+  background:#fff;
+}
+.slide{
+  position:absolute;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:#fff;
+}
+.slide.active{display:flex;}
+.slide img,
+.slide video{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:center;
+  display:block;
+  background:#fff;
+}
+#fs{
+  position:fixed;
+  right:8px;
+  bottom:8px;
+  width:44px;
+  height:44px;
+  border:0;
+  background:transparent;
+  opacity:0;
+  z-index:1000;
+}
+@media (orientation:landscape){
+  #stage{
+    width:100vh;
+    height:100vw;
+    transform:rotate(90deg);
   }
-  body {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    touch-action: none;
-    user-select: none;
-  }
-  #stage {
-    position: relative;
-    width: 100vw;
-    height: 100vh;
-    overflow: hidden;
-    background: #fff;
-  }
-  .slide {
-    position: absolute;
-    inset: 0;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    background: #fff;
-  }
-  .slide.active {
-    display: flex;
-  }
-  .slide img,
-  .slide video {
-    width: 100%;
-    height: 100%;
-    object-fit: contain;
-    object-position: center;
-    display: block;
-    background: #fff;
-  }
-  #fs {
-    position: fixed;
-    right: 10px;
-    bottom: 10px;
-    z-index: 1000;
-    opacity: 0;
-    width: 42px;
-    height: 42px;
-    border: 0;
-    background: transparent;
-  }
-  @media (orientation: landscape) {
-    #stage {
-      width: 100vh;
-      height: 100vw;
-      transform: rotate(90deg);
-    }
-  }
+}
 </style>
 </head>
 <body>
 <div id="stage">
-  <div class="slide active"><img src="ranking.png" alt=""></div>
+  <div class="slide"><img src="ranking.png" alt=""></div>
   <div class="slide"><img src="payment.png" alt=""></div>
   <div class="slide drink-slide"><img src="drink.png" alt=""></div>
-  <div class="slide"><video id="instagramVideo" muted playsinline preload="auto"><source src="インスタグラム.mp4" type="video/mp4"></video></div>
+  <div class="slide"><video id="instagramVideo" muted playsinline preload="auto"><source src="instagram.mp4" type="video/mp4"></video></div>
   <div class="slide"><img src="food.jpg" alt=""></div>
   <div class="slide"><img src="dessert.jpg" alt=""></div>
 </div>
 <button id="fs" aria-label="fullscreen"></button>
 
 <script>
-(() => {
-  const slides = [...document.querySelectorAll('.slide')];
-  const video = document.getElementById('instagramVideo');
-  const drinkSlide = document.querySelector('.drink-slide');
+(function(){
+  const allSlides = Array.from(document.querySelectorAll(".slide"));
+  const drinkSlide = document.querySelector(".drink-slide");
+  const video = document.getElementById("instagramVideo");
   const SIX_SECONDS = 6000;
-
-  function isDrinkDay() {
-    return new Date().getDate() === 20;
-  }
-
-  function buildSlides() {
-    drinkSlide.style.display = isDrinkDay() ? '' : 'none';
-  }
-
+  let visibleSlides = [];
   let current = 0;
   let timer = null;
 
-  function nextVisibleIndex(start) {
-    let i = start;
-    for (let n = 0; n < slides.length; n++) {
-      i = (i + 1) % slides.length;
-      if (slides[i] !== drinkSlide || isDrinkDay()) return i;
-    }
-    return 0;
+  function drinkDay(){
+    return new Date().getDate() === 20;
   }
 
-  function show(index) {
-    slides.forEach(s => s.classList.remove('active'));
-    current = index;
-    slides[current].classList.add('active');
+  function rebuild(){
+    visibleSlides = allSlides.filter(function(slide){
+      return slide !== drinkSlide || drinkDay();
+    });
+  }
 
-    if (video) {
-      if (slides[current].contains(video)) {
-        video.currentTime = 0;
-        video.play().catch(() => {});
+  function show(position){
+    if (!visibleSlides.length) return;
+
+    if (position >= visibleSlides.length) position = 0;
+    current = position;
+
+    allSlides.forEach(function(slide){
+      slide.classList.remove("active");
+    });
+
+    const slide = visibleSlides[current];
+    slide.classList.add("active");
+
+    if (video){
+      if (slide.contains(video)){
+        try {
+          video.pause();
+          video.currentTime = 0;
+          video.load();
+          const p = video.play();
+          if (p && p.catch) p.catch(function(){});
+        } catch(e) {}
       } else {
-        video.pause();
+        try { video.pause(); } catch(e) {}
       }
     }
 
     clearTimeout(timer);
-    timer = setTimeout(() => show(nextVisibleIndex(current)), SIX_SECONDS);
+    timer = setTimeout(function(){
+      rebuild();
+
+      // Keep the same slide when the list changes, otherwise advance.
+      const next = (current + 1) % visibleSlides.length;
+      show(next);
+    }, SIX_SECONDS);
   }
 
-  buildSlides();
-  if (!isDrinkDay() && current === 2) current = 3;
-  show(current);
+  function refreshForDate(){
+    const wasDrink = drinkDay();
+    rebuild();
 
-  document.addEventListener('visibilitychange', () => {
-    if (!document.hidden) {
-      buildSlides();
+    // If the drink slide disappeared at midnight, restart safely.
+    if (current >= visibleSlides.length) current = 0;
+    show(current);
+  }
+
+  rebuild();
+  show(0);
+
+  // If the tablet stays on the page across midnight, update the 20th-only slide.
+  setInterval(function(){
+    const shouldShowDrink = drinkDay();
+    const isPresent = visibleSlides.indexOf(drinkSlide) !== -1;
+    if (shouldShowDrink !== isPresent){
+      rebuild();
+      if (current >= visibleSlides.length) current = 0;
       show(current);
+    }
+  }, 60000);
+
+  // Try fullscreen where supported. The invisible button also permits a user tap.
+  async function fullscreen(){
+    try{
+      if (!document.fullscreenElement && document.documentElement.requestFullscreen){
+        await document.documentElement.requestFullscreen();
+      }
+    }catch(e){}
+  }
+
+  window.addEventListener("load", function(){
+    setTimeout(fullscreen, 500);
+    if (video){
+      video.muted = true;
+      video.setAttribute("muted","");
+      video.setAttribute("playsinline","");
     }
   });
 
-  // Fullscreen attempt for supported browsers/PWA.
-  async function goFullscreen() {
-    try {
-      if (!document.fullscreenElement && document.documentElement.requestFullscreen) {
-        await document.documentElement.requestFullscreen();
-      }
-    } catch (e) {}
-  }
-  window.addEventListener('load', () => setTimeout(goFullscreen, 500));
-  document.addEventListener('click', goFullscreen, { once: true, passive: true });
+  document.addEventListener("click", fullscreen, {once:true, passive:true});
 })();
 </script>
+
 <script>
 if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("./sw.js").catch(() => {});
+  navigator.serviceWorker.register("./sw.js").catch(function(){});
 }
 </script>
 </body>

@@ -4,9 +4,9 @@ const ASSETS = [
   "./index.html",
   "./manifest.webmanifest",
   "./ranking.png",
+  "./payment.png",
   "./drink.png",
-  "./instagram.png",
-  "./staff.png",
+  "./instagram.mp4",
   "./food.jpg",
   "./dessert.jpg"
 ];
@@ -27,12 +27,6 @@ self.addEventListener("activate", event => {
 
 self.addEventListener("fetch", event => {
   event.respondWith(
-    caches.match(event.request).then(cached =>
-      cached || fetch(event.request).then(response => {
-        const copy = response.clone();
-        caches.open(CACHE).then(cache => cache.put(event.request, copy));
-        return response;
-      })
-    )
+    caches.match(event.request).then(cached => cached || fetch(event.request))
   );
 });

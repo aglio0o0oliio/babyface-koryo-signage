@@ -1,35 +1,104 @@
 <!doctype html>
-<html lang="ja"><head>
+<html lang="ja">
+<head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#000">
 <title>BABYFACE Planet's 広陵店 Digital Signage</title>
 <style>
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#fff}
+*{box-sizing:border-box}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#fff}
 body{display:flex;align-items:center;justify-content:center}
 #stage{position:relative;width:min(100vw,62.5vh);height:min(100vh,160vw);aspect-ratio:5/8;overflow:hidden;background:#fff}
 .slide{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:#fff}
 .slide.active{display:flex}
-.slide img,.slide video{width:100%;height:100%;object-fit:contain;object-position:center;display:block;background:#fff}
-</style></head><body>
+.slide img,.slide video{display:block;width:100%;height:100%;object-fit:contain;object-position:center;background:#fff}
+</style>
+</head>
+<body>
 <div id="stage">
-<div class="slide"><img src="payment.jpg"></div>
-<div class="slide"><img src="ranking.png"></div>
-<div class="slide"><video id="instagramVideo" muted playsinline preload="auto"><source src="instagram.mp4" type="video/mp4"></video></div>
-<div class="slide"><img src="food.jpg"></div>
-<div class="slide"><img src="dessert.jpg"></div>
-<div class="slide drink-slide"><img src="drink.png"></div>
+  <div class="slide"><img src="payment.jpg" alt=""></div>
+  <div class="slide"><img src="ranking.png" alt=""></div>
+  <div class="slide">
+    <video id="instagramVideo" autoplay muted playsinline webkit-playsinline preload="auto">
+      <source src="instagram.mp4" type="video/mp4">
+    </video>
+  </div>
+  <div class="slide"><img src="food.jpg" alt=""></div>
+  <div class="slide"><img src="dessert.png" alt=""></div>
+  <div class="slide drink-slide"><img src="drink.png" alt=""></div>
 </div>
+
 <script>
-(()=>{const all=[...document.querySelectorAll('.slide')],drink=document.querySelector('.drink-slide'),video=document.querySelector('#instagramVideo');
-let visible=[],current=0,timer;
-const six=6000,drinkDay=()=>new Date().getDate()===20;
-function rebuild(){visible=all.filter(s=>s!==drink||drinkDay())}
-function show(i){rebuild();if(!visible.length)return;if(i>=visible.length)i=0;current=i;all.forEach(s=>s.classList.remove('active'));
-const s=visible[current];s.classList.add('active');
-if(video){if(s.contains(video)){try{video.pause();video.currentTime=0;let p=video.play();if(p)p.catch(()=>{})}catch(e){}}else{try{video.pause()}catch(e){}}}
-clearTimeout(timer);timer=setTimeout(()=>show((current+1)%visible.length),six)}
-rebuild();show(0);
-setInterval(()=>{const want=drinkDay(),has=visible.includes(drink);if(want!==has){rebuild();current=0;show(0)}},60000);
+(function(){
+  var all = Array.prototype.slice.call(document.querySelectorAll(".slide"));
+  var drink = document.querySelector(".drink-slide");
+  var video = document.getElementById("instagramVideo");
+  var visible = [];
+  var current = 0;
+  var timer = null;
+  var SIX = 6000;
+
+  function isDrinkDay(){
+    return new Date().getDate() === 20;
+  }
+
+  function rebuild(){
+    visible = all.filter(function(s){
+      return s !== drink || isDrinkDay();
+    });
+  }
+
+  function playVideo(){
+    if(!video) return;
+    try {
+      video.muted = true;
+      video.setAttribute("muted","");
+      video.setAttribute("playsinline","");
+      video.setAttribute("webkit-playsinline","");
+      video.currentTime = 0;
+      var p = video.play();
+      if(p && p.catch) p.catch(function(){});
+    } catch(e) {}
+  }
+
+  function show(i){
+    rebuild();
+    if(!visible.length) return;
+    if(i >= visible.length) i = 0;
+    current = i;
+
+    all.forEach(function(s){s.classList.remove("active");});
+    var s = visible[current];
+    s.classList.add("active");
+
+    if(video){
+      if(s.contains(video)){
+        playVideo();
+      }else{
+        try{video.pause();}catch(e){}
+      }
+    }
+
+    clearTimeout(timer);
+    timer = setTimeout(function(){
+      show((current + 1) % visible.length);
+    }, SIX);
+  }
+
+  rebuild();
+  show(0);
+
+  setInterval(function(){
+    var want = isDrinkDay();
+    var has = visible.indexOf(drink) !== -1;
+    if(want !== has){
+      rebuild();
+      current = 0;
+      show(0);
+    }
+  },60000);
 })();
-</script></body></html>
+</script>
+</body>
+</html>

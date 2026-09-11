@@ -18,109 +18,34 @@ body{display:flex;align-items:center;justify-content:center}
 </head>
 <body>
 <div id="stage">
-  <div class="slide"><img src="payment.png" alt=""></div>
+  <div class="slide"><img src="payment.jpg" alt=""></div>
   <div class="slide"><img src="ranking.png" alt=""></div>
-
-  <div class="slide" id="instagramSlide">
-    <img id="instagramFrame" src="instagram_01.jpg" alt="">
-  </div>
-
-  <div class="slide"><img src="food.png" alt=""></div>
+  <div class="slide"><img src="instagram.png" alt=""></div>
+  <div class="slide"><img src="food.jpg" alt=""></div>
   <div class="slide"><img src="dessert.png" alt=""></div>
-  <div class="slide" id="drinkSlide"><img src="drink.png" alt=""></div>
+  <div class="slide drink-slide"><img src="drink.png" alt=""></div>
 </div>
-
 <script>
 (function(){
-  var slides=[].slice.call(document.querySelectorAll(".slide"));
-  var instagram=document.getElementById("instagramSlide");
-  var frame=document.getElementById("instagramFrame");
-  var drink=document.getElementById("drinkSlide");
-
-  var frames=[];
-  for(var i=1;i<=12;i++){
-    var n=("0"+i).slice(-2);
-    frames.push("instagram_"+n+".jpg");
-  }
-
-  /* 先読みしておく */
-  frames.forEach(function(src){
-    var img=new Image();
-    img.src=src;
-  });
-
-  var visible=[];
-  var current=0;
-  var slideTimer=null;
-  var frameTimer=null;
-  var frameIndex=0;
-
-  function isDrinkDay(){
-    return new Date().getDate()===20;
-  }
-
-  function rebuild(){
-    visible=slides.filter(function(s){
-      return s!==drink || isDrinkDay();
-    });
-  }
-
-  function stopFrames(){
-    if(frameTimer){
-      clearInterval(frameTimer);
-      frameTimer=null;
-    }
-  }
-
-  function startFrames(){
-    stopFrames();
-    frameIndex=0;
-    frame.src=frames[0];
-
-    /* 約0.42秒ごと。5秒で12枚を一周 */
-    frameTimer=setInterval(function(){
-      frameIndex=(frameIndex+1)%frames.length;
-      frame.src=frames[frameIndex];
-    },420);
-  }
-
-  function show(index){
+  var all=[].slice.call(document.querySelectorAll(".slide"));
+  var drink=document.querySelector(".drink-slide");
+  var visible=[],current=0,timer=null,SIX=6000;
+  function isDrinkDay(){return new Date().getDate()===20;}
+  function rebuild(){visible=all.filter(function(s){return s!==drink||isDrinkDay();});}
+  function show(i){
     rebuild();
     if(!visible.length)return;
-
-    if(index>=visible.length)index=0;
-    current=index;
-
-    slides.forEach(function(s){
-      s.classList.remove("active");
-    });
-
-    var target=visible[current];
-    target.classList.add("active");
-
-    if(target===instagram){
-      startFrames();
-    }else{
-      stopFrames();
-    }
-
-    clearTimeout(slideTimer);
-    slideTimer=setTimeout(function(){
-      show((current+1)%visible.length);
-    },6000);
+    if(i>=visible.length)i=0;
+    current=i;
+    all.forEach(function(s){s.classList.remove("active");});
+    visible[current].classList.add("active");
+    clearTimeout(timer);
+    timer=setTimeout(function(){show((current+1)%visible.length);},SIX);
   }
-
-  rebuild();
-  show(0);
-
-  /* 毎月20日になったらドリンクページを自動追加 */
+  rebuild(); show(0);
   setInterval(function(){
-    var shouldShow=isDrinkDay();
-    var currentlyShown=visible.indexOf(drink)!==-1;
-    if(shouldShow!==currentlyShown){
-      current=0;
-      show(0);
-    }
+    var want=isDrinkDay(),has=visible.indexOf(drink)!==-1;
+    if(want!==has){current=0;show(0);}
   },60000);
 })();
 </script>

@@ -1,190 +1,35 @@
 <!doctype html>
-<html lang="ja">
-<head>
+<html lang="ja"><head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#000000">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#000">
 <title>BABYFACE Planet's 広陵店 Digital Signage</title>
 <style>
-  * { box-sizing: border-box; }
-  html, body {
-    margin: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    background: #fff;
-  }
-
-  body {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    touch-action: none;
-    user-select: none;
-  }
-
-  /* P31 portrait: 1200 x 1920 = 5:8.
-     The stage always keeps this ratio so nothing is cropped. */
-  #stage {
-    position: relative;
-    width: min(100vw, 62.5vh);
-    height: min(100vh, 160vw);
-    aspect-ratio: 5 / 8;
-    overflow: hidden;
-    background: #fff;
-    flex: 0 0 auto;
-  }
-
-  .slide {
-    position: absolute;
-    inset: 0;
-    display: none;
-    align-items: center;
-    justify-content: center;
-    background: #fff;
-  }
-
-  .slide.active {
-    display: flex;
-  }
-
-  .slide img,
-  .slide video {
-    display: block;
-    width: 100%;
-    height: 100%;
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-    object-position: center center;
-    background: #fff;
-  }
-
-  #fs {
-    position: fixed;
-    right: 8px;
-    bottom: 8px;
-    width: 44px;
-    height: 44px;
-    border: 0;
-    background: transparent;
-    opacity: 0;
-    z-index: 1000;
-  }
-</style>
-</head>
-<body>
+*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#fff}
+body{display:flex;align-items:center;justify-content:center}
+#stage{position:relative;width:min(100vw,62.5vh);height:min(100vh,160vw);aspect-ratio:5/8;overflow:hidden;background:#fff}
+.slide{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:#fff}
+.slide.active{display:flex}
+.slide img,.slide video{width:100%;height:100%;object-fit:contain;object-position:center;display:block;background:#fff}
+</style></head><body>
 <div id="stage">
-  <div class="slide"><img src="ranking.png" alt=""></div>
-  <div class="slide"><img src="payment.png" alt=""></div>
-  <div class="slide drink-slide"><img src="drink.png" alt=""></div>
-  <div class="slide">
-    <video id="instagramVideo" muted playsinline preload="auto">
-      <source src="instagram.mp4" type="video/mp4">
-    </video>
-  </div>
-  <div class="slide"><img src="food.jpg" alt=""></div>
-  <div class="slide"><img src="dessert.jpg" alt=""></div>
+<div class="slide"><img src="payment.jpg"></div>
+<div class="slide"><img src="ranking.png"></div>
+<div class="slide"><video id="instagramVideo" muted playsinline preload="auto"><source src="instagram.mp4" type="video/mp4"></video></div>
+<div class="slide"><img src="food.jpg"></div>
+<div class="slide"><img src="dessert.jpg"></div>
+<div class="slide drink-slide"><img src="drink.png"></div>
 </div>
-
-<button id="fs" aria-label="fullscreen"></button>
-
 <script>
-(function () {
-  const allSlides = Array.from(document.querySelectorAll(".slide"));
-  const drinkSlide = document.querySelector(".drink-slide");
-  const video = document.getElementById("instagramVideo");
-  const SIX_SECONDS = 6000;
-
-  let visibleSlides = [];
-  let current = 0;
-  let timer = null;
-
-  function isDrinkDay() {
-    return new Date().getDate() === 20;
-  }
-
-  function rebuildSlides() {
-    visibleSlides = allSlides.filter(function (slide) {
-      return slide !== drinkSlide || isDrinkDay();
-    });
-  }
-
-  function show(index) {
-    if (!visibleSlides.length) return;
-
-    if (index >= visibleSlides.length) index = 0;
-    current = index;
-
-    allSlides.forEach(function (slide) {
-      slide.classList.remove("active");
-    });
-
-    const slide = visibleSlides[current];
-    slide.classList.add("active");
-
-    if (video) {
-      if (slide.contains(video)) {
-        try {
-          video.pause();
-          video.currentTime = 0;
-          const promise = video.play();
-          if (promise && promise.catch) promise.catch(function () {});
-        } catch (e) {}
-      } else {
-        try { video.pause(); } catch (e) {}
-      }
-    }
-
-    clearTimeout(timer);
-    timer = setTimeout(function () {
-      rebuildSlides();
-      show((current + 1) % visibleSlides.length);
-    }, SIX_SECONDS);
-  }
-
-  rebuildSlides();
-  show(0);
-
-  // Detect the 20th when the page remains open overnight.
-  setInterval(function () {
-    const shouldShow = isDrinkDay();
-    const currentlyShown = visibleSlides.indexOf(drinkSlide) !== -1;
-
-    if (shouldShow !== currentlyShown) {
-      rebuildSlides();
-      if (current >= visibleSlides.length) current = 0;
-      show(current);
-    }
-  }, 60000);
-
-  async function goFullscreen() {
-    try {
-      if (!document.fullscreenElement &&
-          document.documentElement.requestFullscreen) {
-        await document.documentElement.requestFullscreen();
-      }
-    } catch (e) {}
-  }
-
-  window.addEventListener("load", function () {
-    setTimeout(goFullscreen, 500);
-  });
-
-  document.addEventListener("click", goFullscreen, {
-    once: true,
-    passive: true
-  });
+(()=>{const all=[...document.querySelectorAll('.slide')],drink=document.querySelector('.drink-slide'),video=document.querySelector('#instagramVideo');
+let visible=[],current=0,timer;
+const six=6000,drinkDay=()=>new Date().getDate()===20;
+function rebuild(){visible=all.filter(s=>s!==drink||drinkDay())}
+function show(i){rebuild();if(!visible.length)return;if(i>=visible.length)i=0;current=i;all.forEach(s=>s.classList.remove('active'));
+const s=visible[current];s.classList.add('active');
+if(video){if(s.contains(video)){try{video.pause();video.currentTime=0;let p=video.play();if(p)p.catch(()=>{})}catch(e){}}else{try{video.pause()}catch(e){}}}
+clearTimeout(timer);timer=setTimeout(()=>show((current+1)%visible.length),six)}
+rebuild();show(0);
+setInterval(()=>{const want=drinkDay(),has=visible.includes(drink);if(want!==has){rebuild();current=0;show(0)}},60000);
 })();
-</script>
-
-<script>
-if ("serviceWorker" in navigator) {
-  navigator.serviceWorker.register("./sw.js").catch(function () {});
-}
-</script>
-</body>
-</html>
+</script></body></html>

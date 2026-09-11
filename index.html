@@ -2,73 +2,155 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#000000">
-<link rel="manifest" href="./manifest.webmanifest">
-<title>BABYFACE Planet's 広陵店 Digital Signage</title>
+<link rel="manifest" href="manifest.webmanifest">
+<title>BABYFACE Planet's 広陵店</title>
 <style>
-*{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#fff}
-body{display:flex;align-items:center;justify-content:center}
-#stage{position:relative;width:100vw;height:100vh;overflow:hidden;background:#fff}
-.slide{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:#fff}
-.slide.active{display:flex}
-.slide img{width:100%;height:100%;object-fit:contain;object-position:center;display:block;background:#fff}
-.slide video{width:100%;height:100%;object-fit:cover;object-position:center;display:block;background:#fff}
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    background: #000;
+  }
+  body {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: sans-serif;
+  }
+  #stage {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    background: #fff;
+  }
+  .slide {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+  }
+  .slide.active { display: flex; }
+  .slide img,
+  .slide video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #fff;
+  }
+  video {
+    object-position: center center;
+  }
 </style>
 </head>
 <body>
 <div id="stage">
-  <div class="slide"><img src="payment.png" alt=""></div>
-  <div class="slide"><img src="ranking.png" alt=""></div>
-  <div class="slide">
-    <video id="instagramVideo" autoplay muted playsinline webkit-playsinline preload="auto">
-      <source src="instagram.mp4" type="video/mp4">
-    </video>
-  </div>
+  <div class="slide active"><img src="payment.png" alt=""></div>
   <div class="slide"><img src="food.png" alt=""></div>
   <div class="slide"><img src="dessert.png" alt=""></div>
-  <div class="slide drink-slide"><img src="drink.png" alt=""></div>
+  <div class="slide"><img src="ranking.png" alt=""></div>
+  <div class="slide"><video id="instagramVideo" muted playsinline preload="auto" src="instagram.mp4"></video></div>
+  <div class="slide" id="drinkSlide"><img src="drink.png" alt=""></div>
 </div>
+
 <script>
-(function(){
-  var all=[].slice.call(document.querySelectorAll(".slide"));
-  var drink=document.querySelector(".drink-slide");
-  var video=document.getElementById("instagramVideo");
-  var visible=[],current=0,timer=null,SIX=6000;
-  function isDrinkDay(){return new Date().getDate()===20;}
-  function rebuild(){visible=all.filter(function(s){return s!==drink||isDrinkDay();});}
-  function playVideo(){
-    try{
-      video.muted=true;
-      video.setAttribute("muted","");
-      video.setAttribute("playsinline","");
-      video.setAttribute("webkit-playsinline","");
-      video.currentTime=0;
-      var p=video.play();
-      if(p&&p.catch)p.catch(function(){});
-    }catch(e){}
+(() => {
+  const INTERVAL = 6000;
+  const slides = [...document.querySelectorAll('.slide')];
+  const drinkSlide = document.getElementById('drinkSlide');
+  const video = document.getElementById('instagramVideo');
+  let index = 0;
+  let timer = null;
+
+  function isDrinkDay() {
+    return new Date().getDate() === 20;
   }
-  function show(i){
-    rebuild();
-    if(!visible.length)return;
-    if(i>=visible.length)i=0;
-    current=i;
-    all.forEach(function(s){s.classList.remove("active");});
-    var s=visible[current];
-    s.classList.add("active");
-    if(video){
-      if(s.contains(video))playVideo();
-      else{try{video.pause();}catch(e){}}
+
+  function buildSlides() {
+    // Drink slide exists only on the 20th.
+    drinkSlide.style.display = isDrinkDay() ? '' : 'none';
+  }
+
+  function visibleSlides() {
+    return slides.filter((slide) => slide !== drinkSlide || isDrinkDay());
+  }
+
+  function showSlide(nextIndex) {
+    const list = visibleSlides();
+    if (!list.length) return;
+
+    if (index >= list.length) index = 0;
+    list.forEach((slide, i) => slide.classList.toggle('active', i === index));
+
+    if (video) {
+      if (list[index].contains(video)) {
+        video.currentTime = 0;
+        video.muted = true;
+        const p = video.play();
+        if (p) p.catch(() => {});
+      } else {
+        video.pause();
+      }
     }
-    clearTimeout(timer);
-    timer=setTimeout(function(){show((current+1)%visible.length);},SIX);
   }
-  rebuild(); show(0);
-  setInterval(function(){
-    var want=isDrinkDay(),has=visible.indexOf(drink)!==-1;
-    if(want!==has){current=0;show(0);}
-  },60000);
+
+  function advance() {
+    const list = visibleSlides();
+    index = (index + 1) % list.length;
+    showSlide(index);
+  }
+
+  function start() {
+    clearInterval(timer);
+    timer = setInterval(advance, INTERVAL);
+  }
+
+  // Re-evaluate the 20th-of-the-month rule every minute, including if
+  // the page remains open across midnight.
+  let lastDrinkState = isDrinkDay();
+  setInterval(() => {
+    const nowDrinkState = isDrinkDay();
+    if (nowDrinkState !== lastDrinkState) {
+      lastDrinkState = nowDrinkState;
+      buildSlides();
+      index = 0;
+      showSlide(index);
+    }
+  }, 60000);
+
+  buildSlides();
+  showSlide(0);
+  start();
+
+  // Try autoplay again after the page becomes visible.
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && video) {
+      const list = visibleSlides();
+      if (list[index] && list[index].contains(video)) {
+        video.muted = true;
+        const p = video.play();
+        if (p) p.catch(() => {});
+      }
+    }
+  });
+
+  // Keep the signage in fullscreen when the browser allows it.
+  document.addEventListener('click', () => {
+    if (document.documentElement.requestFullscreen &&
+        !document.fullscreenElement) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    }
+  }, { once: true });
 })();
 </script>
 </body>

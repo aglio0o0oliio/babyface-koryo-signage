@@ -1,10 +1,9 @@
 {
-  "name": "BABYFACE Planet's 広陵店 Digital Signage",
-  "short_name": "BABYFACE広陵",
+  "name": "BABYFACE Planet's 広陵店 サイネージ",
+  "short_name": "BABYFACEサイネージ",
   "start_url": "./",
-  "scope": "./",
-  "display": "fullscreen",
+  "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#ffffff",
+  "background_color": "#000000",
   "theme_color": "#000000"
 }

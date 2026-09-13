@@ -18,10 +18,10 @@ body{display:flex;align-items:center;justify-content:center}
 </head>
 <body>
 <div id="stage">
-  <div class="slide"><img src="payment.png" alt=""></div>
+  <div class="slide"><img src="payment.jpg" alt=""></div>
   <div class="slide"><img src="ranking.png" alt=""></div>
   <div class="slide"><img src="instagram.png" alt=""></div>
-  <div class="slide"><img src="food.png" alt=""></div>
+  <div class="slide"><img src="food.jpg" alt=""></div>
   <div class="slide"><img src="dessert.png" alt=""></div>
   <div class="slide drink-slide"><img src="drink.png" alt=""></div>
 </div>
@@ -49,5 +49,26 @@ body{display:flex;align-items:center;justify-content:center}
   },60000);
 })();
 </script>
+
+<script>
+(function(){
+  function goFullscreen(){
+    var el=document.documentElement;
+    try{
+      if(el.requestFullscreen){
+        var p=el.requestFullscreen();
+        if(p && p.catch)p.catch(function(){});
+      }else if(el.webkitRequestFullscreen){
+        el.webkitRequestFullscreen();
+      }else if(el.webkitEnterFullscreen){
+        el.webkitEnterFullscreen();
+      }
+    }catch(e){}
+  }
+  document.addEventListener("click",goFullscreen,false);
+  document.addEventListener("touchend",goFullscreen,false);
+})();
+</script>
+
 </body>
 </html>

@@ -14,6 +14,7 @@ body{display:flex;align-items:center;justify-content:center}
 .slide{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:#fff}
 .slide.active{display:flex}
 .slide img{width:100%;height:100%;object-fit:contain;object-position:center;display:block;background:#fff}
+.slide video{width:100%;height:100%;object-fit:contain;object-position:center;display:block;background:#fff}
 </style>
 </head>
 <body>
@@ -30,24 +31,78 @@ body{display:flex;align-items:center;justify-content:center}
   var all=[].slice.call(document.querySelectorAll(".slide"));
   var drink=document.querySelector(".drink-slide");
   var visible=[],current=0,timer=null,SIX=6000;
-  function isDrinkDay(){return new Date().getDate()===20;}
-  function rebuild(){visible=all.filter(function(s){return s!==drink||isDrinkDay();});}
+
+  function isDrinkDay(){
+    return new Date().getDate()===20;
+  }
+
+  function rebuild(){
+    visible=all.filter(function(s){
+      return s!==drink || isDrinkDay();
+    });
+  }
+
   function show(i){
     rebuild();
     if(!visible.length)return;
     if(i>=visible.length)i=0;
     current=i;
-    all.forEach(function(s){s.classList.remove("active");});
-    visible[current].classList.add("active");
+
     clearTimeout(timer);
-    timer=setTimeout(function(){show((current+1)%visible.length);},SIX);
+
+    all.forEach(function(s){
+      s.classList.remove("active");
+
+      var v=s.querySelector("video");
+      if(v){
+        v.pause();
+        v.currentTime=0;
+      }
+    });
+
+    var slide=visible[current];
+    slide.classList.add("active");
+
+    var video=slide.querySelector("video");
+
+    if(video){
+      video.currentTime=0;
+
+      var p=video.play();
+      if(p){
+        p.catch(function(){});
+      }
+
+      video.onended=function(){
+        show((current+1)%visible.length);
+      };
+
+      timer=setTimeout(function(){
+        if(!video.ended){
+          show((current+1)%visible.length);
+        }
+      },SIX);
+    }else{
+      timer=setTimeout(function(){
+        show((current+1)%visible.length);
+      },SIX);
+    }
   }
-  rebuild(); show(0);
+
+  rebuild();
+  show(0);
+
   setInterval(function(){
-    var want=isDrinkDay(),has=visible.indexOf(drink)!==-1;
-    if(want!==has){current=0;show(0);}
+    var want=isDrinkDay();
+    var has=visible.indexOf(drink)!==-1;
+
+    if(want!==has){
+      current=0;
+      show(0);
+    }
   },60000);
 })();
+</script>
 </script>
 
 <script>

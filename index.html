@@ -13,8 +13,15 @@ body{display:flex;align-items:center;justify-content:center}
 #stage{position:relative;width:100vw;height:100vh;overflow:hidden;background:#fff}
 .slide{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:#fff}
 .slide.active{display:flex}
-.slide img{width:100%;height:100%;object-fit:contain;object-position:center;display:block;background:#fff}
-.slide video{width:100%;height:100%;object-fit:contain;object-position:center;display:block;background:#fff}
+.slide img,
+.slide video{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  object-position:center;
+  display:block;
+  background:#fff
+}
 </style>
 </head>
 <body>

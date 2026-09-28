@@ -118,8 +118,20 @@ body{
   var timer = null;
   var SIX = 6000;
 
+  var night = false;
+
   function isDrinkDay(){
     return new Date().getDate() === 20;
+  }
+
+  function isNightTime(){
+
+    var now = new Date();
+    var hour = now.getHours();
+
+    // 23:00〜翌09:59は夜間
+    return hour >= 23 || hour < 10;
+
   }
 
   function rebuild(){
@@ -130,7 +142,68 @@ body{
 
   }
 
+  function createBlackScreen(){
+
+    if(document.getElementById("night-screen")){
+      return;
+    }
+
+    var screen = document.createElement("div");
+
+    screen.id = "night-screen";
+
+    screen.style.position = "fixed";
+    screen.style.left = "0";
+    screen.style.top = "0";
+    screen.style.width = "100vw";
+    screen.style.height = "100vh";
+    screen.style.background = "#000";
+    screen.style.zIndex = "99999";
+
+    document.body.appendChild(screen);
+
+  }
+
+  function removeBlackScreen(){
+
+    var screen = document.getElementById("night-screen");
+
+    if(screen){
+      screen.remove();
+    }
+
+  }
+
   function show(i){
+
+    if(isNightTime()){
+
+      night = true;
+
+      clearTimeout(timer);
+
+      all.forEach(function(s){
+
+        s.classList.remove("active");
+
+        var v = s.querySelector("video");
+
+        if(v){
+          v.pause();
+          v.currentTime = 0;
+        }
+
+      });
+
+      createBlackScreen();
+
+      return;
+
+    }
+
+    night = false;
+
+    removeBlackScreen();
 
     rebuild();
 
@@ -197,18 +270,44 @@ body{
 
   }
 
-  rebuild();
-  show(0);
+  function checkNightMode(){
 
-  setInterval(function(){
+    var nowNight = isNightTime();
 
-    var want = isDrinkDay();
-    var has = visible.indexOf(drink) !== -1;
+    if(nowNight !== night){
 
-    if(want !== has){
+      night = nowNight;
 
       current = 0;
+
       show(0);
+
+    }
+
+  }
+
+  rebuild();
+
+  night = isNightTime();
+
+  show(0);
+
+  // 1分ごとに夜間・昼間を確認
+  setInterval(function(){
+
+    checkNightMode();
+
+    if(!isNightTime()){
+
+      var want = isDrinkDay();
+      var has = visible.indexOf(drink) !== -1;
+
+      if(want !== has){
+
+        current = 0;
+        show(0);
+
+      }
 
     }
 

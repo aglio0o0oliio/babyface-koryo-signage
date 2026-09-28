@@ -281,10 +281,13 @@ body{
 
   function update(){
 
-    var video = document.querySelector("video");
+    var slide = document.querySelector(".slide.active");
+    var video = slide ? slide.querySelector("video") : null;
 
     if(!video){
-      info.innerHTML = "VIDEO NOT FOUND";
+      info.innerHTML =
+        "WebView: " + window.innerWidth + " × " + window.innerHeight +
+        "<br>現在：画像スライド";
       return;
     }
 

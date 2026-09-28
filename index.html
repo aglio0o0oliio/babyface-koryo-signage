@@ -6,13 +6,48 @@
 <meta name="theme-color" content="#000000">
 <link rel="manifest" href="./manifest.webmanifest">
 <title>BABYFACE Planet's 広陵店 Digital Signage</title>
+
 <style>
-*{box-sizing:border-box}
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#fff}
-body{display:flex;align-items:center;justify-content:center}
-#stage{position:relative;width:100vw;height:100vh;overflow:hidden;background:#fff}
-.slide{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:#fff}
-.slide.active{display:flex}
+*{
+  box-sizing:border-box;
+}
+
+html,
+body{
+  margin:0;
+  width:100%;
+  height:100%;
+  overflow:hidden;
+  background:#fff;
+}
+
+body{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+#stage{
+  position:relative;
+  width:100vw;
+  height:100vh;
+  overflow:hidden;
+  background:#fff;
+}
+
+.slide{
+  position:absolute;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:#fff;
+}
+
+.slide.active{
+  display:flex;
+}
+
 .slide img{
   width:100%;
   height:100%;
@@ -29,152 +64,204 @@ body{display:flex;align-items:center;justify-content:center}
   object-position:center;
   display:block;
   background:#000;
-  transform:none !important;
 }
-  
 </style>
 </head>
+
 <body>
+
 <div id="stage">
-  <div class="slide"><img src="payment.png" alt=""></div>
-  <div class="slide"><img src="ranking.png" alt=""></div>
+
   <div class="slide">
-      <video src="instagram.mp4?v=2" autoplay muted playsinline loop></video>
+    <img src="payment.png" alt="">
   </div>
-  <div class="slide"><img src="food.png" alt=""></div>
-  <div class="slide"><img src="dessert.png" alt=""></div>
-  <div class="slide drink-slide"><img src="drink.png" alt=""></div>
+
+  <div class="slide">
+    <img src="ranking.png" alt="">
+  </div>
+
+  <div class="slide">
+    <video
+      src="instagram.mp4"
+      autoplay
+      muted
+      playsinline
+      loop>
+    </video>
+  </div>
+
+  <div class="slide">
+    <img src="food.png" alt="">
+  </div>
+
+  <div class="slide">
+    <img src="dessert.png" alt="">
+  </div>
+
+  <div class="slide drink-slide">
+    <img src="drink.png" alt="">
+  </div>
+
 </div>
+
 <script>
 (function(){
-  var all=[].slice.call(document.querySelectorAll(".slide"));
-  var drink=document.querySelector(".drink-slide");
-  var visible=[],current=0,timer=null,SIX=6000;
+
+  var all = [].slice.call(
+    document.querySelectorAll(".slide")
+  );
+
+  var drink = document.querySelector(".drink-slide");
+
+  var visible = [];
+  var current = 0;
+  var timer = null;
+  var SIX = 6000;
 
   function isDrinkDay(){
-    return new Date().getDate()===20;
+    return new Date().getDate() === 20;
   }
 
   function rebuild(){
-    visible=all.filter(function(s){
-      return s!==drink || isDrinkDay();
+
+    visible = all.filter(function(s){
+      return s !== drink || isDrinkDay();
     });
+
   }
 
   function show(i){
+
     rebuild();
-    if(!visible.length)return;
-    if(i>=visible.length)i=0;
-    current=i;
+
+    if(!visible.length){
+      return;
+    }
+
+    if(i >= visible.length){
+      i = 0;
+    }
+
+    current = i;
 
     clearTimeout(timer);
 
     all.forEach(function(s){
+
       s.classList.remove("active");
 
-      var v=s.querySelector("video");
+      var v = s.querySelector("video");
+
       if(v){
         v.pause();
-        v.currentTime=0;
+        v.currentTime = 0;
       }
+
     });
 
-    var slide=visible[current];
+    var slide = visible[current];
+
     slide.classList.add("active");
 
-    var video=slide.querySelector("video");
+    var video = slide.querySelector("video");
 
     if(video){
-      video.currentTime=0;
 
-      var p=video.play();
+      video.currentTime = 0;
+
+      var p = video.play();
+
       if(p){
         p.catch(function(){});
       }
 
-      video.onended=function(){
-        show((current+1)%visible.length);
+      video.onended = function(){
+        show((current + 1) % visible.length);
       };
 
-      timer=setTimeout(function(){
+      timer = setTimeout(function(){
+
         if(!video.ended){
-          show((current+1)%visible.length);
+          show((current + 1) % visible.length);
         }
-      },SIX);
+
+      }, SIX);
+
     }else{
-      timer=setTimeout(function(){
-        show((current+1)%visible.length);
-      },SIX);
+
+      timer = setTimeout(function(){
+        show((current + 1) % visible.length);
+      }, SIX);
+
     }
+
   }
 
   rebuild();
   show(0);
 
   setInterval(function(){
-    var want=isDrinkDay();
-    var has=visible.indexOf(drink)!==-1;
 
-    if(want!==has){
-      current=0;
+    var want = isDrinkDay();
+    var has = visible.indexOf(drink) !== -1;
+
+    if(want !== has){
+
+      current = 0;
       show(0);
+
     }
-  },60000);
+
+  }, 60000);
+
 })();
 </script>
 
 <script>
 (function(){
-  function goFullscreen(){
-    var el=document.documentElement;
-    try{
-      if(el.requestFullscreen){
-        var p=el.requestFullscreen();
-        if(p && p.catch)p.catch(function(){});
-      }else if(el.webkitRequestFullscreen){
-        el.webkitRequestFullscreen();
-      }else if(el.webkitEnterFullscreen){
-        el.webkitEnterFullscreen();
-      }
-    }catch(e){}
-  }
-  document.addEventListener("click",goFullscreen,false);
-  document.addEventListener("touchend",goFullscreen,false);
-})();
-  <script>
-(function(){
-  var info = document.createElement("div");
 
-  info.style.position = "fixed";
-  info.style.top = "10px";
-  info.style.left = "10px";
-  info.style.zIndex = "99999";
-  info.style.background = "rgba(0,0,0,0.85)";
-  info.style.color = "#00ff00";
-  info.style.padding = "10px";
-  info.style.fontSize = "24px";
- <script>
-(function(){
   function goFullscreen(){
-    var el=document.documentElement;
+
+    var el = document.documentElement;
+
     try{
+
       if(el.requestFullscreen){
-        var p=el.requestFullscreen();
-        if(p && p.catch)p.catch(function(){});
+
+        var p = el.requestFullscreen();
+
+        if(p && p.catch){
+          p.catch(function(){});
+        }
+
       }else if(el.webkitRequestFullscreen){
+
         el.webkitRequestFullscreen();
+
       }else if(el.webkitEnterFullscreen){
+
         el.webkitEnterFullscreen();
+
       }
+
     }catch(e){}
+
   }
-  document.addEventListener("click",goFullscreen,false);
-  document.addEventListener("touchend",goFullscreen,false);
+
+  document.addEventListener(
+    "click",
+    goFullscreen,
+    false
+  );
+
+  document.addEventListener(
+    "touchend",
+    goFullscreen,
+    false
+  );
+
 })();
 </script>
-
-</body>
-</html>
 
 </body>
 </html>

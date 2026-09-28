@@ -262,53 +262,6 @@ body{
 
 })();
 </script>
-<script>
-(function(){
 
-  var info = document.createElement("div");
-
-  info.style.position = "fixed";
-  info.style.top = "10px";
-  info.style.left = "10px";
-  info.style.zIndex = "99999";
-  info.style.background = "rgba(0,0,0,0.9)";
-  info.style.color = "#00ff00";
-  info.style.padding = "10px";
-  info.style.fontSize = "22px";
-  info.style.fontFamily = "monospace";
-
-  document.body.appendChild(info);
-
-  function update(){
-
-    var slide = document.querySelector(".slide.active");
-    var video = slide ? slide.querySelector("video") : null;
-
-    if(!video){
-      info.innerHTML =
-        "WebView: " + window.innerWidth + " × " + window.innerHeight +
-        "<br>現在：画像スライド";
-      return;
-    }
-
-    var r = video.getBoundingClientRect();
-    var cs = window.getComputedStyle(video);
-
-    info.innerHTML =
-      "WebView: " + window.innerWidth + " × " + window.innerHeight +
-      "<br>Video element: " +
-      Math.round(r.width) + " × " + Math.round(r.height) +
-      "<br>CSS width: " + cs.width +
-      "<br>CSS height: " + cs.height +
-      "<br>Video source: " +
-      video.videoWidth + " × " + video.videoHeight;
-
-  }
-
-  update();
-  setInterval(update,1000);
-
-})();
-</script>
 </body>
 </html>

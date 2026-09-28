@@ -29,6 +29,7 @@ body{display:flex;align-items:center;justify-content:center}
   object-position:center;
   display:block;
   background:#000;
+  transform:scale(1.08);
 }
   
 </style>
@@ -169,37 +170,6 @@ body{display:flex;align-items:center;justify-content:center}
   }
   document.addEventListener("click",goFullscreen,false);
   document.addEventListener("touchend",goFullscreen,false);
-})();
-</script>
-
-<script>
-(function(){
-  var info = document.createElement("div");
-
-  info.style.position = "fixed";
-  info.style.top = "10px";
-  info.style.left = "10px";
-  info.style.zIndex = "99999";
-  info.style.background = "rgba(0,0,0,0.85)";
-  info.style.color = "#00ff00";
-  info.style.padding = "10px";
-  info.style.fontSize = "24px";
-  info.style.fontFamily = "monospace";
-
-  document.body.appendChild(info);
-
-  function update(){
-    var video = document.querySelector("video");
-
-    info.innerHTML =
-      "WebView: " + window.innerWidth + " × " + window.innerHeight +
-      "<br>Screen: " + screen.width + " × " + screen.height +
-      "<br>Video: " +
-      (video && video.videoWidth ? video.videoWidth + " × " + video.videoHeight : "loading...");
-  }
-
-  update();
-  setInterval(update, 1000);
 })();
 </script>
 

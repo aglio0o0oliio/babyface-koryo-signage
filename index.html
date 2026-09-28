@@ -152,6 +152,38 @@ body{display:flex;align-items:center;justify-content:center}
   info.style.color = "#00ff00";
   info.style.padding = "10px";
   info.style.fontSize = "24px";
+ <script>
+(function(){
+  function goFullscreen(){
+    var el=document.documentElement;
+    try{
+      if(el.requestFullscreen){
+        var p=el.requestFullscreen();
+        if(p && p.catch)p.catch(function(){});
+      }else if(el.webkitRequestFullscreen){
+        el.webkitRequestFullscreen();
+      }else if(el.webkitEnterFullscreen){
+        el.webkitEnterFullscreen();
+      }
+    }catch(e){}
+  }
+  document.addEventListener("click",goFullscreen,false);
+  document.addEventListener("touchend",goFullscreen,false);
+})();
+</script>
+
+<script>
+(function(){
+  var info = document.createElement("div");
+
+  info.style.position = "fixed";
+  info.style.top = "10px";
+  info.style.left = "10px";
+  info.style.zIndex = "99999";
+  info.style.background = "rgba(0,0,0,0.85)";
+  info.style.color = "#00ff00";
+  info.style.padding = "10px";
+  info.style.fontSize = "24px";
   info.style.fontFamily = "monospace";
 
   document.body.appendChild(info);
@@ -169,8 +201,10 @@ body{display:flex;align-items:center;justify-content:center}
   update();
   setInterval(update, 1000);
 })();
-
 </script>
+
+</body>
+</html>
 
 </body>
 </html>

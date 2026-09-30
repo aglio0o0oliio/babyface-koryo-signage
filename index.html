@@ -306,43 +306,325 @@ body{
      平日11:00〜14:59
   ============================== */
 
-  function isWeekdayLunchTime(){
+ /* ==============================
+   日本の祝日判定
+================================ */
 
-    var now = new Date();
+function isJapaneseHoliday(date){
 
-    var day = now.getDay();
+  var year = date.getFullYear();
+  var month = date.getMonth() + 1;
+  var day = date.getDate();
 
-    var hour = now.getHours();
+  function d(y, m, d){
+    return y + "-" +
+      String(m).padStart(2,"0") + "-" +
+      String(d).padStart(2,"0");
+  }
 
+  function nthMonday(y, m, n){
 
-    /*
-      月曜日 = 1
-      火曜日 = 2
-      水曜日 = 3
-      木曜日 = 4
-      金曜日 = 5
-      土曜日 = 6
-      日曜日 = 0
-    */
+    var date = new Date(y, m - 1, 1);
 
-    var weekday =
-      day >= 1 &&
-      day <= 5;
+    var firstMonday =
+      (8 - date.getDay()) % 7 + 1;
 
-
-    /*
-      11:00〜14:59
-    */
-
-    var lunchTime =
-      hour >= 11 &&
-      hour < 15;
-
-
-    return weekday && lunchTime;
+    return firstMonday + (n - 1) * 7;
 
   }
 
+  function vernalEquinoxDay(y){
+
+    return Math.floor(
+      20.8431 +
+      0.242194 * (y - 1980) -
+      Math.floor((y - 1980) / 4)
+    );
+
+  }
+
+  function autumnalEquinoxDay(y){
+
+    return Math.floor(
+      23.2488 +
+      0.242194 * (y - 1980) -
+      Math.floor((y - 1980) / 4)
+    );
+
+  }
+
+
+  var holidays = {};
+
+
+  /* ------------------------------
+     固定祝日
+  ------------------------------ */
+
+  holidays[d(year,1,1)] = true;      // 元日
+  holidays[d(year,2,11)] = true;     // 建国記念の日
+  holidays[d(year,2,23)] = true;     // 天皇誕生日
+
+  holidays[d(year,4,29)] = true;     // 昭和の日
+  holidays[d(year,5,3)] = true;      // 憲法記念日
+  holidays[d(year,5,4)] = true;      // みどりの日
+  holidays[d(year,5,5)] = true;      // こどもの日
+
+  holidays[d(year,8,11)] = true;     // 山の日
+
+  holidays[d(year,11,3)] = true;     // 文化の日
+  holidays[d(year,11,23)] = true;    // 勤労感謝の日
+
+
+  /* ------------------------------
+     春分の日
+  ------------------------------ */
+
+  holidays[
+    d(year,3,vernalEquinoxDay(year))
+  ] = true;
+
+
+  /* ------------------------------
+     秋分の日
+  ------------------------------ */
+
+  holidays[
+    d(year,9,autumnalEquinoxDay(year))
+  ] = true;
+
+
+  /* ------------------------------
+     成人の日
+     1月第2月曜日
+  ------------------------------ */
+
+  holidays[
+    d(
+      year,
+      1,
+      nthMonday(year,1,2)
+    )
+  ] = true;
+
+
+  /* ------------------------------
+     海の日
+     7月第3月曜日
+  ------------------------------ */
+
+  holidays[
+    d(
+      year,
+      7,
+      nthMonday(year,7,3)
+    )
+  ] = true;
+
+
+  /* ------------------------------
+     敬老の日
+     9月第3月曜日
+  ------------------------------ */
+
+  holidays[
+    d(
+      year,
+      9,
+      nthMonday(year,9,3)
+    )
+  ] = true;
+
+
+  /* ------------------------------
+     スポーツの日
+     10月第2月曜日
+  ------------------------------ */
+
+  holidays[
+    d(
+      year,
+      10,
+      nthMonday(year,10,2)
+    )
+  ] = true;
+
+
+  /* ------------------------------
+     国民の休日
+     
+     祝日と祝日の間の平日
+  ------------------------------ */
+
+  var checkDate =
+    new Date(year,0,1);
+
+  while(checkDate.getFullYear() === year){
+
+    var key =
+      d(
+        checkDate.getFullYear(),
+        checkDate.getMonth() + 1,
+        checkDate.getDate()
+      );
+
+    if(!holidays[key]){
+
+      var previous =
+        new Date(checkDate);
+
+      previous.setDate(
+        previous.getDate() - 1
+      );
+
+      var next =
+        new Date(checkDate);
+
+      next.setDate(
+        next.getDate() + 1
+      );
+
+      var previousKey =
+        d(
+          previous.getFullYear(),
+          previous.getMonth() + 1,
+          previous.getDate()
+        );
+
+      var nextKey =
+        d(
+          next.getFullYear(),
+          next.getMonth() + 1,
+          next.getDate()
+        );
+
+      if(
+        holidays[previousKey] &&
+        holidays[nextKey]
+      ){
+
+        holidays[key] = true;
+
+      }
+
+    }
+
+    checkDate.setDate(
+      checkDate.getDate() + 1
+    );
+
+  }
+
+
+  /* ------------------------------
+     振替休日
+     
+     日曜日に祝日が重なった場合、
+     次の平日を休日にする
+  ------------------------------ */
+
+  var holidayKeys =
+    Object.keys(holidays);
+
+  holidayKeys.forEach(function(key){
+
+    var parts =
+      key.split("-");
+
+    var hDate =
+      new Date(
+        Number(parts[0]),
+        Number(parts[1]) - 1,
+        Number(parts[2])
+      );
+
+    if(hDate.getDay() === 0){
+
+      var substitute =
+        new Date(hDate);
+
+      substitute.setDate(
+        substitute.getDate() + 1
+      );
+
+      while(true){
+
+        var subKey =
+          d(
+            substitute.getFullYear(),
+            substitute.getMonth() + 1,
+            substitute.getDate()
+          );
+
+        if(!holidays[subKey]){
+
+          holidays[subKey] = true;
+
+          break;
+
+        }
+
+        substitute.setDate(
+          substitute.getDate() + 1
+        );
+
+      }
+
+    }
+
+  });
+
+
+  return holidays[
+    d(year,month,day)
+  ] === true;
+
+}
+
+
+/* ==============================
+   平日11:00〜14:59
+   祝日は除外
+================================ */
+
+function isWeekdayLunchTime(){
+
+  var now = new Date();
+
+  var day =
+    now.getDay();
+
+  var hour =
+    now.getHours();
+
+
+  /* 月〜金 */
+
+  var weekday =
+    day >= 1 &&
+    day <= 5;
+
+
+  /* 11:00〜14:59 */
+
+  var lunchTime =
+    hour >= 11 &&
+    hour < 15;
+
+
+  /* 日本の祝日ではない */
+
+  var holiday =
+    isJapaneseHoliday(now);
+
+
+  return (
+    weekday &&
+    lunchTime &&
+    !holiday
+  );
+
+}
 
   /* ==============================
      夜間

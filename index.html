@@ -25,10 +25,6 @@
 
 <style>
 
-/* ==============================
-   基本設定
-================================ */
-
 *{
   box-sizing:border-box;
 }
@@ -56,11 +52,6 @@ body{
 
 }
 
-
-/* ==============================
-   サイネージ画面
-================================ */
-
 #stage{
 
   position:relative;
@@ -73,11 +64,6 @@ body{
   background:#fff;
 
 }
-
-
-/* ==============================
-   スライド
-================================ */
 
 .slide{
 
@@ -100,11 +86,6 @@ body{
 
 }
 
-
-/* ==============================
-   画像
-================================ */
-
 .slide img{
 
   width:100%;
@@ -119,11 +100,6 @@ body{
   background:#fff;
 
 }
-
-
-/* ==============================
-   動画
-================================ */
 
 .slide video{
 
@@ -150,43 +126,24 @@ body{
 
 <div id="stage">
 
-
-  <!-- ==========================
-       支払い方法
-  =========================== -->
-
+  <!-- 1. 支払い方法：3秒 -->
   <div class="slide">
-
-    <img
-      src="payment.png"
-      alt=""
-    >
-
+    <img src="payment.png" alt="">
   </div>
 
+  <!-- 2. ドリンク：3秒・毎月20日のみ -->
+  <div class="slide drink-slide">
+    <img src="drink.png" alt="">
+  </div>
 
-  <!-- ==========================
-       ランキング
-       ※平日11:00〜14:59は
-         lunch.pngに自動変更
-  =========================== -->
-
+  <!-- 3. ランキング：3秒 -->
+  <!-- 平日11:00〜14:59は lunch.png に変更 -->
   <div class="slide ranking-slide">
-
-    <img
-      src="ranking.png"
-      alt=""
-    >
-
+    <img src="ranking.png" alt="">
   </div>
 
-
-  <!-- ==========================
-       Instagram動画
-  =========================== -->
-
+  <!-- 4. Instagram：3秒 -->
   <div class="slide">
-
     <video
       src="instagram.mp4"
       autoplay
@@ -194,55 +151,29 @@ body{
       playsinline
       loop>
     </video>
-
   </div>
 
-
-  <!-- ==========================
-       フード
-  =========================== -->
-
+  <!-- 5. 支払い方法：3秒 -->
   <div class="slide">
-
-    <img
-      src="food.png"
-      alt=""
-    >
-
+    <img src="payment.png" alt="">
   </div>
 
-
-  <!-- ==========================
-       デザート
-  =========================== -->
-
+  <!-- 6. フード：3秒 -->
   <div class="slide">
-
-    <img
-      src="dessert.png"
-      alt=""
-    >
-
+    <img src="food.png" alt="">
   </div>
 
-
-  <!-- ==========================
-       ドリンク
-       ※毎月20日のみ表示
-  =========================== -->
-
-  <div class="slide drink-slide">
-
-    <img
-      src="drink.png"
-      alt=""
-    >
-
+  <!-- 7. デザート：3秒 -->
+  <div class="slide">
+    <img src="dessert.png" alt="">
   </div>
 
+  <!-- 8. 広陵限定メニュー：3秒 -->
+  <div class="slide">
+    <img src="koryo.png" alt="">
+  </div>
 
 </div>
-
 
 
 <!-- ==================================================
@@ -252,7 +183,6 @@ body{
 <script>
 
 (function(){
-
 
   /* ==============================
      スライド取得
@@ -284,9 +214,10 @@ body{
 
   var timer = null;
 
-  var SIX = 6000;
+  /* 3秒 */
+  var SIX = 3000;
 
-  var night = false;
+  var mode = "day";
 
   var lunch = false;
 
@@ -303,346 +234,477 @@ body{
 
 
   /* ==============================
-     平日11:00〜14:59
+     日本の祝日判定
   ============================== */
 
- /* ==============================
-   日本の祝日判定
-================================ */
+  function isJapaneseHoliday(date){
 
-function isJapaneseHoliday(date){
+    var year = date.getFullYear();
+    var month = date.getMonth() + 1;
+    var day = date.getDate();
 
-  var year = date.getFullYear();
-  var month = date.getMonth() + 1;
-  var day = date.getDate();
+    function d(y, m, d){
 
-  function d(y, m, d){
-    return y + "-" +
-      String(m).padStart(2,"0") + "-" +
-      String(d).padStart(2,"0");
-  }
-
-  function nthMonday(y, m, n){
-
-    var date = new Date(y, m - 1, 1);
-
-    var firstMonday =
-      (8 - date.getDay()) % 7 + 1;
-
-    return firstMonday + (n - 1) * 7;
-
-  }
-
-  function vernalEquinoxDay(y){
-
-    return Math.floor(
-      20.8431 +
-      0.242194 * (y - 1980) -
-      Math.floor((y - 1980) / 4)
-    );
-
-  }
-
-  function autumnalEquinoxDay(y){
-
-    return Math.floor(
-      23.2488 +
-      0.242194 * (y - 1980) -
-      Math.floor((y - 1980) / 4)
-    );
-
-  }
-
-
-  var holidays = {};
-
-
-  /* ------------------------------
-     固定祝日
-  ------------------------------ */
-
-  holidays[d(year,1,1)] = true;      // 元日
-  holidays[d(year,2,11)] = true;     // 建国記念の日
-  holidays[d(year,2,23)] = true;     // 天皇誕生日
-
-  holidays[d(year,4,29)] = true;     // 昭和の日
-  holidays[d(year,5,3)] = true;      // 憲法記念日
-  holidays[d(year,5,4)] = true;      // みどりの日
-  holidays[d(year,5,5)] = true;      // こどもの日
-
-  holidays[d(year,8,11)] = true;     // 山の日
-
-  holidays[d(year,11,3)] = true;     // 文化の日
-  holidays[d(year,11,23)] = true;    // 勤労感謝の日
-
-
-  /* ------------------------------
-     春分の日
-  ------------------------------ */
-
-  holidays[
-    d(year,3,vernalEquinoxDay(year))
-  ] = true;
-
-
-  /* ------------------------------
-     秋分の日
-  ------------------------------ */
-
-  holidays[
-    d(year,9,autumnalEquinoxDay(year))
-  ] = true;
-
-
-  /* ------------------------------
-     成人の日
-     1月第2月曜日
-  ------------------------------ */
-
-  holidays[
-    d(
-      year,
-      1,
-      nthMonday(year,1,2)
-    )
-  ] = true;
-
-
-  /* ------------------------------
-     海の日
-     7月第3月曜日
-  ------------------------------ */
-
-  holidays[
-    d(
-      year,
-      7,
-      nthMonday(year,7,3)
-    )
-  ] = true;
-
-
-  /* ------------------------------
-     敬老の日
-     9月第3月曜日
-  ------------------------------ */
-
-  holidays[
-    d(
-      year,
-      9,
-      nthMonday(year,9,3)
-    )
-  ] = true;
-
-
-  /* ------------------------------
-     スポーツの日
-     10月第2月曜日
-  ------------------------------ */
-
-  holidays[
-    d(
-      year,
-      10,
-      nthMonday(year,10,2)
-    )
-  ] = true;
-
-
-  /* ------------------------------
-     国民の休日
-     
-     祝日と祝日の間の平日
-  ------------------------------ */
-
-  var checkDate =
-    new Date(year,0,1);
-
-  while(checkDate.getFullYear() === year){
-
-    var key =
-      d(
-        checkDate.getFullYear(),
-        checkDate.getMonth() + 1,
-        checkDate.getDate()
-      );
-
-    if(!holidays[key]){
-
-      var previous =
-        new Date(checkDate);
-
-      previous.setDate(
-        previous.getDate() - 1
-      );
-
-      var next =
-        new Date(checkDate);
-
-      next.setDate(
-        next.getDate() + 1
-      );
-
-      var previousKey =
-        d(
-          previous.getFullYear(),
-          previous.getMonth() + 1,
-          previous.getDate()
-        );
-
-      var nextKey =
-        d(
-          next.getFullYear(),
-          next.getMonth() + 1,
-          next.getDate()
-        );
-
-      if(
-        holidays[previousKey] &&
-        holidays[nextKey]
-      ){
-
-        holidays[key] = true;
-
-      }
+      return y + "-" +
+        String(m).padStart(2,"0") + "-" +
+        String(d).padStart(2,"0");
 
     }
 
-    checkDate.setDate(
-      checkDate.getDate() + 1
-    );
 
-  }
+    function nthMonday(y, m, n){
+
+      var date =
+        new Date(
+          y,
+          m - 1,
+          1
+        );
+
+      var firstMonday =
+        (8 - date.getDay()) % 7 + 1;
+
+      return (
+        firstMonday +
+        (n - 1) * 7
+      );
+
+    }
 
 
-  /* ------------------------------
-     振替休日
-     
-     日曜日に祝日が重なった場合、
-     次の平日を休日にする
-  ------------------------------ */
+    function vernalEquinoxDay(y){
 
-  var holidayKeys =
-    Object.keys(holidays);
+      return Math.floor(
 
-  holidayKeys.forEach(function(key){
+        20.8431 +
+        0.242194 * (y - 1980) -
+        Math.floor(
+          (y - 1980) / 4
+        )
 
-    var parts =
-      key.split("-");
+      );
 
-    var hDate =
+    }
+
+
+    function autumnalEquinoxDay(y){
+
+      return Math.floor(
+
+        23.2488 +
+        0.242194 * (y - 1980) -
+        Math.floor(
+          (y - 1980) / 4
+        )
+
+      );
+
+    }
+
+
+    var holidays = {};
+
+
+    /* ------------------------------
+       固定祝日
+    ------------------------------ */
+
+    holidays[d(year,1,1)] = true;
+    holidays[d(year,2,11)] = true;
+    holidays[d(year,2,23)] = true;
+
+    holidays[d(year,4,29)] = true;
+    holidays[d(year,5,3)] = true;
+    holidays[d(year,5,4)] = true;
+    holidays[d(year,5,5)] = true;
+
+    holidays[d(year,8,11)] = true;
+
+    holidays[d(year,11,3)] = true;
+    holidays[d(year,11,23)] = true;
+
+
+    /* ------------------------------
+       春分の日
+    ------------------------------ */
+
+    holidays[
+      d(
+        year,
+        3,
+        vernalEquinoxDay(year)
+      )
+    ] = true;
+
+
+    /* ------------------------------
+       秋分の日
+    ------------------------------ */
+
+    holidays[
+      d(
+        year,
+        9,
+        autumnalEquinoxDay(year)
+      )
+    ] = true;
+
+
+    /* ------------------------------
+       成人の日
+       1月第2月曜日
+    ------------------------------ */
+
+    holidays[
+      d(
+        year,
+        1,
+        nthMonday(
+          year,
+          1,
+          2
+        )
+      )
+    ] = true;
+
+
+    /* ------------------------------
+       海の日
+       7月第3月曜日
+    ------------------------------ */
+
+    holidays[
+      d(
+        year,
+        7,
+        nthMonday(
+          year,
+          7,
+          3
+        )
+      )
+    ] = true;
+
+
+    /* ------------------------------
+       敬老の日
+       9月第3月曜日
+    ------------------------------ */
+
+    holidays[
+      d(
+        year,
+        9,
+        nthMonday(
+          year,
+          9,
+          3
+        )
+      )
+    ] = true;
+
+
+    /* ------------------------------
+       スポーツの日
+       10月第2月曜日
+    ------------------------------ */
+
+    holidays[
+      d(
+        year,
+        10,
+        nthMonday(
+          year,
+          10,
+          2
+        )
+      )
+    ] = true;
+
+
+    /* ------------------------------
+       国民の休日
+    ------------------------------ */
+
+    var checkDate =
       new Date(
-        Number(parts[0]),
-        Number(parts[1]) - 1,
-        Number(parts[2])
+        year,
+        0,
+        1
       );
 
-    if(hDate.getDay() === 0){
 
-      var substitute =
-        new Date(hDate);
+    while(
+      checkDate.getFullYear() === year
+    ){
 
-      substitute.setDate(
-        substitute.getDate() + 1
-      );
+      var key =
+        d(
+          checkDate.getFullYear(),
+          checkDate.getMonth() + 1,
+          checkDate.getDate()
+        );
 
-      while(true){
 
-        var subKey =
+      if(!holidays[key]){
+
+        var previous =
+          new Date(checkDate);
+
+
+        previous.setDate(
+          previous.getDate() - 1
+        );
+
+
+        var next =
+          new Date(checkDate);
+
+
+        next.setDate(
+          next.getDate() + 1
+        );
+
+
+        var previousKey =
           d(
-            substitute.getFullYear(),
-            substitute.getMonth() + 1,
-            substitute.getDate()
+            previous.getFullYear(),
+            previous.getMonth() + 1,
+            previous.getDate()
           );
 
-        if(!holidays[subKey]){
 
-          holidays[subKey] = true;
+        var nextKey =
+          d(
+            next.getFullYear(),
+            next.getMonth() + 1,
+            next.getDate()
+          );
 
-          break;
+
+        if(
+          holidays[previousKey] &&
+          holidays[nextKey]
+        ){
+
+          holidays[key] = true;
 
         }
 
-        substitute.setDate(
-          substitute.getDate() + 1
-        );
-
       }
+
+
+      checkDate.setDate(
+        checkDate.getDate() + 1
+      );
 
     }
 
-  });
+
+    /* ------------------------------
+       振替休日
+    ------------------------------ */
+
+    var holidayKeys =
+      Object.keys(holidays);
 
 
-  return holidays[
-    d(year,month,day)
-  ] === true;
+    holidayKeys.forEach(
+      function(key){
 
-}
-
-
-/* ==============================
-   平日11:00〜14:59
-   祝日は除外
-================================ */
-
-function isWeekdayLunchTime(){
-
-  var now = new Date();
-
-  var day =
-    now.getDay();
-
-  var hour =
-    now.getHours();
+        var parts =
+          key.split("-");
 
 
-  /* 月〜金 */
-
-  var weekday =
-    day >= 1 &&
-    day <= 5;
-
-
-  /* 11:00〜14:59 */
-
-  var lunchTime =
-    hour >= 11 &&
-    hour < 15;
+        var hDate =
+          new Date(
+            Number(parts[0]),
+            Number(parts[1]) - 1,
+            Number(parts[2])
+          );
 
 
-  /* 日本の祝日ではない */
+        if(
+          hDate.getDay() === 0
+        ){
 
-  var holiday =
-    isJapaneseHoliday(now);
+          var substitute =
+            new Date(hDate);
 
 
-  return (
-    weekday &&
-    lunchTime &&
-    !holiday
-  );
+          substitute.setDate(
+            substitute.getDate() + 1
+          );
 
-}
+
+          while(true){
+
+            var subKey =
+              d(
+                substitute.getFullYear(),
+                substitute.getMonth() + 1,
+                substitute.getDate()
+              );
+
+
+            if(
+              !holidays[subKey]
+            ){
+
+              holidays[subKey] =
+                true;
+
+              break;
+
+            }
+
+
+            substitute.setDate(
+              substitute.getDate() + 1
+            );
+
+          }
+
+        }
+
+      }
+    );
+
+
+    return holidays[
+      d(
+        year,
+        month,
+        day
+      )
+    ] === true;
+
+  }
+
 
   /* ==============================
-     夜間
-     
-     23:00〜翌09:59
+     平日11:00〜14:59
+     祝日は除外
   ============================== */
 
-  function isNightTime(){
+  function isWeekdayLunchTime(){
 
-    var now = new Date();
+    var now =
+      new Date();
 
-    var hour = now.getHours();
+
+    var day =
+      now.getDay();
+
+
+    var hour =
+      now.getHours();
+
+
+    var weekday =
+      day >= 1 &&
+      day <= 5;
+
+
+    var lunchTime =
+      hour >= 11 &&
+      hour < 15;
+
+
+    var holiday =
+      isJapaneseHoliday(now);
 
 
     return (
-      hour >= 23 ||
-      hour < 10
+
+      weekday &&
+      lunchTime &&
+      !holiday
+
     );
+
+  }
+
+
+  /* ==============================
+     閉店画像
+     
+     23:00〜23:29
+  ============================== */
+
+  function isCloseTime(){
+
+    var now =
+      new Date();
+
+
+    return (
+
+      now.getHours() === 23 &&
+      now.getMinutes() < 30
+
+    );
+
+  }
+
+
+  /* ==============================
+     黒画面
+     
+     23:30〜翌09:59
+  ============================== */
+
+  function isBlackTime(){
+
+    var now =
+      new Date();
+
+
+    var hour =
+      now.getHours();
+
+
+    return (
+
+      (
+        hour === 23 &&
+        now.getMinutes() >= 30
+      )
+
+      ||
+
+      hour < 10
+
+    );
+
+  }
+
+
+  /* ==============================
+     現在のモード
+  ============================== */
+
+  function getMode(){
+
+    if(
+      isCloseTime()
+    ){
+
+      return "close";
+
+    }
+
+
+    if(
+      isBlackTime()
+    ){
+
+      return "black";
+
+    }
+
+
+    return "day";
 
   }
 
@@ -653,36 +715,38 @@ function isWeekdayLunchTime(){
 
   function rebuild(){
 
-    visible = all.filter(function(slide){
+    visible =
+      all.filter(
+        function(slide){
 
-      /*
-        drink.pngは
-        毎月20日のみ
-      */
+          /* ドリンクは毎月20日のみ */
 
-      if(slide === drink){
+          if(
+            slide === drink
+          ){
 
-        return isDrinkDay();
+            return isDrinkDay();
 
-      }
+          }
 
 
-      return true;
+          return true;
 
-    });
+        }
+      );
 
   }
 
 
   /* ==============================
-     黒画面を表示
+     黒画面
   ============================== */
 
   function createBlackScreen(){
 
     if(
       document.getElementById(
-        "night-screen"
+        "black-screen"
       )
     ){
 
@@ -692,11 +756,13 @@ function isWeekdayLunchTime(){
 
 
     var screen =
-      document.createElement("div");
+      document.createElement(
+        "div"
+      );
 
 
     screen.id =
-      "night-screen";
+      "black-screen";
 
 
     screen.style.position =
@@ -736,7 +802,7 @@ function isWeekdayLunchTime(){
 
     var screen =
       document.getElementById(
-        "night-screen"
+        "black-screen"
       );
 
 
@@ -750,7 +816,116 @@ function isWeekdayLunchTime(){
 
 
   /* ==============================
-     ランチ画像を設定
+     閉店画像
+  ============================== */
+
+  function createCloseScreen(){
+
+    if(
+      document.getElementById(
+        "close-screen"
+      )
+    ){
+
+      return;
+
+    }
+
+
+    var screen =
+      document.createElement(
+        "div"
+      );
+
+
+    screen.id =
+      "close-screen";
+
+
+    screen.style.position =
+      "fixed";
+
+    screen.style.left =
+      "0";
+
+    screen.style.top =
+      "0";
+
+    screen.style.width =
+      "100vw";
+
+    screen.style.height =
+      "100vh";
+
+    screen.style.background =
+      "#fff";
+
+    screen.style.zIndex =
+      "99999";
+
+
+    var img =
+      document.createElement(
+        "img"
+      );
+
+
+    img.src =
+      "close.png";
+
+
+    img.alt =
+      "";
+
+
+    img.style.width =
+      "100%";
+
+    img.style.height =
+      "100%";
+
+    img.style.objectFit =
+      "contain";
+
+    img.style.objectPosition =
+      "center";
+
+
+    screen.appendChild(
+      img
+    );
+
+
+    document.body.appendChild(
+      screen
+    );
+
+  }
+
+
+  /* ==============================
+     閉店画像を解除
+  ============================== */
+
+  function removeCloseScreen(){
+
+    var screen =
+      document.getElementById(
+        "close-screen"
+      );
+
+
+    if(screen){
+
+      screen.remove();
+
+    }
+
+  }
+
+
+  /* ==============================
+     ランキング画像
   ============================== */
 
   function updateRankingImage(){
@@ -763,7 +938,9 @@ function isWeekdayLunchTime(){
 
 
     var img =
-      ranking.querySelector("img");
+      ranking.querySelector(
+        "img"
+      );
 
 
     if(!img){
@@ -780,14 +957,16 @@ function isWeekdayLunchTime(){
       img.src =
         "lunch.png";
 
-      lunch = true;
+      lunch =
+        true;
 
     }else{
 
       img.src =
         "ranking.png";
 
-      lunch = false;
+      lunch =
+        false;
 
     }
 
@@ -800,19 +979,126 @@ function isWeekdayLunchTime(){
 
   function show(i){
 
+    var currentMode =
+      getMode();
+
 
     /* ==========================
-       夜間
+       閉店画像 / 黒画面
     ========================== */
 
-    if(isNightTime()){
+    if(
+      currentMode !== "day"
+    ){
 
-      night = true;
+      mode =
+        currentMode;
 
-      clearTimeout(timer);
+
+      clearTimeout(
+        timer
+      );
 
 
-      all.forEach(function(slide){
+      all.forEach(
+        function(slide){
+
+          slide.classList.remove(
+            "active"
+          );
+
+
+          var video =
+            slide.querySelector(
+              "video"
+            );
+
+
+          if(video){
+
+            video.pause();
+
+            video.currentTime =
+              0;
+
+          }
+
+        }
+      );
+
+
+      removeCloseScreen();
+
+      removeBlackScreen();
+
+
+      if(
+        currentMode === "close"
+      ){
+
+        createCloseScreen();
+
+      }else{
+
+        createBlackScreen();
+
+      }
+
+
+      return;
+
+    }
+
+
+    /* ==========================
+       昼間
+    ========================== */
+
+    mode =
+      "day";
+
+
+    removeCloseScreen();
+
+    removeBlackScreen();
+
+
+    rebuild();
+
+
+    if(
+      !visible.length
+    ){
+
+      return;
+
+    }
+
+
+    if(
+      i >= visible.length
+    ){
+
+      i = 0;
+
+    }
+
+
+    current =
+      i;
+
+
+    clearTimeout(
+      timer
+    );
+
+
+    /* ==========================
+       全スライド停止
+    ========================== */
+
+    all.forEach(
+      function(slide){
 
         slide.classList.remove(
           "active"
@@ -829,85 +1115,17 @@ function isWeekdayLunchTime(){
 
           video.pause();
 
-          video.currentTime = 0;
+          video.currentTime =
+            0;
 
         }
 
-      });
-
-
-      createBlackScreen();
-
-      return;
-
-    }
-
-
-    /* ==========================
-       昼間
-    ========================== */
-
-    night = false;
-
-    removeBlackScreen();
-
-
-    rebuild();
-
-
-    if(!visible.length){
-
-      return;
-
-    }
-
-
-    if(
-      i >= visible.length
-    ){
-
-      i = 0;
-
-    }
-
-
-    current = i;
-
-
-    clearTimeout(timer);
-
-
-    /* ==========================
-       全スライド停止
-    ========================== */
-
-    all.forEach(function(slide){
-
-      slide.classList.remove(
-        "active"
-      );
-
-
-      var video =
-        slide.querySelector(
-          "video"
-        );
-
-
-      if(video){
-
-        video.pause();
-
-        video.currentTime = 0;
-
       }
-
-    });
+    );
 
 
     /* ==========================
-       ランキング画像を
-       時間帯に応じて変更
+       ランキング画像更新
     ========================== */
 
     updateRankingImage();
@@ -927,7 +1145,7 @@ function isWeekdayLunchTime(){
 
 
     /* ==========================
-       動画の場合
+       動画
     ========================== */
 
     var video =
@@ -938,7 +1156,8 @@ function isWeekdayLunchTime(){
 
     if(video){
 
-      video.currentTime = 0;
+      video.currentTime =
+        0;
 
 
       var p =
@@ -958,33 +1177,39 @@ function isWeekdayLunchTime(){
         function(){
 
           show(
+
             (current + 1) %
             visible.length
+
           );
 
         };
 
 
-      /*
-        動画がループしても
-        6秒で次へ進む
-      */
+      /* Instagramも3秒で次へ */
 
       timer =
         setTimeout(
+
           function(){
 
-            if(!video.ended){
+            if(
+              !video.ended
+            ){
 
               show(
+
                 (current + 1) %
                 visible.length
+
               );
 
             }
 
           },
+
           SIX
+
         );
 
 
@@ -992,20 +1217,25 @@ function isWeekdayLunchTime(){
 
 
       /* ========================
-         画像の場合
+         画像
       ======================== */
 
       timer =
         setTimeout(
+
           function(){
 
             show(
+
               (current + 1) %
               visible.length
+
             );
 
           },
+
           SIX
+
         );
 
     }
@@ -1014,32 +1244,34 @@ function isWeekdayLunchTime(){
 
 
   /* ==============================
-     時間帯変更チェック
+     時間帯・日付チェック
   ============================== */
 
   function checkMode(){
 
+    var nowMode =
+      getMode();
+
 
     /* ==========================
-       夜間チェック
+       閉店 / 黒画面 / 昼間
     ========================== */
 
-    var nowNight =
-      isNightTime();
-
-
     if(
-      nowNight !== night
+      nowMode !== mode
     ){
 
-      night =
-        nowNight;
+      mode =
+        nowMode;
 
 
-      current = 0;
+      current =
+        0;
 
 
-      show(0);
+      show(
+        0
+      );
 
 
       return;
@@ -1047,8 +1279,17 @@ function isWeekdayLunchTime(){
     }
 
 
+    if(
+      nowMode !== "day"
+    ){
+
+      return;
+
+    }
+
+
     /* ==========================
-       ランチ時間変更チェック
+       ランチ時間変更
     ========================== */
 
     var nowLunch =
@@ -1063,21 +1304,16 @@ function isWeekdayLunchTime(){
         nowLunch;
 
 
-      /*
-        ランキング画像を更新
-      */
-
       updateRankingImage();
 
 
-      /*
-        スライドを先頭から再開
-      */
-
-      current = 0;
+      current =
+        0;
 
 
-      show(0);
+      show(
+        0
+      );
 
 
       return;
@@ -1086,7 +1322,7 @@ function isWeekdayLunchTime(){
 
 
     /* ==========================
-       毎月20日チェック
+       毎月20日のドリンク
     ========================== */
 
     var wantDrink =
@@ -1094,16 +1330,22 @@ function isWeekdayLunchTime(){
 
 
     var hasDrink =
-      visible.indexOf(drink) !== -1;
+      visible.indexOf(
+        drink
+      ) !== -1;
 
 
     if(
       wantDrink !== hasDrink
     ){
 
-      current = 0;
+      current =
+        0;
 
-      show(0);
+
+      show(
+        0
+      );
 
     }
 
@@ -1117,8 +1359,8 @@ function isWeekdayLunchTime(){
   rebuild();
 
 
-  night =
-    isNightTime();
+  mode =
+    getMode();
 
 
   lunch =
@@ -1128,27 +1370,31 @@ function isWeekdayLunchTime(){
   updateRankingImage();
 
 
-  show(0);
+  show(
+    0
+  );
 
 
   /* ==============================
-     1分ごとにチェック
+     10秒ごとに時間帯チェック
   ============================== */
 
   setInterval(
+
     function(){
 
       checkMode();
 
     },
-    60000
+
+    10000
+
   );
 
 
 })();
 
 </script>
-
 
 
 <!-- ==================================================
@@ -1184,6 +1430,7 @@ function isWeekdayLunchTime(){
 
           p.catch(
             function(){}
+
           );
 
         }

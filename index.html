@@ -1,1481 +1,1597 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ja">
-
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 
-<meta charset="utf-8">
+  <meta name="theme-color" content="#000000">
+  <link rel="manifest" href="manifest.webmanifest">
 
-<meta
-  name="viewport"
-  content="width=device-width,initial-scale=1,viewport-fit=cover"
->
+  <title>BABYFACE Planet's 広陵店</title>
 
-<meta
-  name="theme-color"
-  content="#000000"
->
+  <style>
+    * {
+      box-sizing: border-box;
+    }
 
-<link
-  rel="manifest"
-  href="./manifest.webmanifest"
->
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: #000;
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Noto Sans JP",
+        "Yu Gothic",
+        "Hiragino Kaku Gothic ProN",
+        sans-serif;
+    }
 
-<title>BABYFACE Planet's 広陵店 Digital Signage</title>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
+    #screen {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+      background: #000;
+    }
 
-<style>
+    .slide {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
 
-*{
-  box-sizing:border-box;
-}
+    .slide.active {
+      display: block;
+    }
 
-html,
-body{
+    #video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+      background: #000;
+    }
 
-  margin:0;
+    #video.active {
+      display: block;
+    }
 
-  width:100%;
-  height:100%;
+    /* =========================
+       朝のスタッフ画面
+       ========================= */
 
-  overflow:hidden;
+    #morning {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      display: none;
+      flex-direction: column;
+      background: #f7f4ec;
+      color: #333;
+    }
 
-  background:#fff;
+    #morning.active {
+      display: flex;
+    }
 
-}
+    #morning-message {
+      width: 100%;
+      height: 50%;
 
-body{
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
 
-  display:flex;
+      text-align: center;
 
-  align-items:center;
-  justify-content:center;
+      padding: 5vh 7vw;
 
-}
+      background:
+        linear-gradient(
+          180deg,
+          #fffdf7 0%,
+          #f8f4e9 100%
+        );
+    }
 
-#stage{
+    .morning-greeting {
+      font-size: clamp(28px, 5vw, 72px);
+      font-weight: 700;
+      margin-bottom: 2vh;
+      letter-spacing: 0.04em;
+    }
 
-  position:relative;
+    .morning-text {
+      max-width: 90%;
+      white-space: pre-line;
 
-  width:100vw;
-  height:100vh;
+      font-size: clamp(22px, 3.5vw, 52px);
+      line-height: 1.6;
+      font-weight: 500;
+    }
 
-  overflow:hidden;
+    /* =========================
+       天気
+       ========================= */
 
-  background:#fff;
+    #weather {
+      width: 100%;
+      height: 50%;
 
-}
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
 
-.slide{
+      text-align: center;
 
-  position:absolute;
+      padding: 3vh 5vw;
 
-  inset:0;
+      background:
+        linear-gradient(
+          180deg,
+          #eaf5ff 0%,
+          #dcefff 100%
+        );
+    }
 
-  display:none;
+    .weather-title {
+      font-size: clamp(20px, 3vw, 42px);
+      font-weight: 700;
+      margin-bottom: 1.5vh;
+    }
 
-  align-items:center;
-  justify-content:center;
+    .weather-main {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 3vw;
+    }
 
-  background:#fff;
+    .weather-icon {
+      font-size: clamp(60px, 10vw, 130px);
+      line-height: 1;
+    }
 
-}
+    .weather-condition {
+      font-size: clamp(24px, 4vw, 56px);
+      font-weight: 700;
+    }
 
-.slide.active{
+    .weather-temperature {
+      font-size: clamp(32px, 5vw, 70px);
+      font-weight: 700;
+      margin-top: 1vh;
+    }
 
-  display:flex;
+    .weather-details {
+      display: flex;
+      justify-content: center;
+      gap: 5vw;
+      margin-top: 2vh;
 
-}
+      font-size: clamp(18px, 2.5vw, 34px);
+    }
 
-.slide img{
+    .weather-updated {
+      margin-top: 1.5vh;
+      font-size: clamp(12px, 1.5vw, 20px);
+      opacity: 0.65;
+    }
 
-  width:100%;
-  height:100%;
+    .weather-error {
+      font-size: clamp(18px, 3vw, 36px);
+      line-height: 1.6;
+      opacity: 0.7;
+    }
 
-  object-fit:contain;
+    /* =========================
+       閉店後
+       ========================= */
 
-  object-position:center;
+    #close {
+      position: absolute;
+      inset: 0;
+      display: none;
+      background: #000;
+    }
 
-  display:block;
+    #close.active {
+      display: block;
+    }
 
-  background:#fff;
+    #close img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
 
-}
+    /* =========================
+       黒画面
+       ========================= */
 
-.slide video{
+    #black {
+      position: absolute;
+      inset: 0;
+      background: #000;
+      display: none;
+    }
 
-  width:100vw;
-  height:100vh;
+    #black.active {
+      display: block;
+    }
 
-  object-fit:contain;
-
-  object-position:center;
-
-  display:block;
-
-  background:#000;
-
-}
-
-</style>
-
+  </style>
 </head>
-
 
 <body>
 
+  <div id="screen">
 
-<div id="stage">
+    <!-- 通常サイネージ -->
+    <img
+      id="slide"
+      class="slide"
+      src=""
+      alt="BABYFACE signage"
+    >
 
-  <!-- 1. 支払い方法：3秒 -->
-  <div class="slide">
-    <img src="payment.png" alt="">
-  </div>
-
-  <!-- 2. ドリンク：3秒・毎月20日のみ -->
-  <div class="slide drink-slide">
-    <img src="drink.png" alt="">
-  </div>
-
-  <!-- 3. ランキング：3秒 -->
-  <!-- 平日11:00〜14:59は lunch.png に変更 -->
-  <div class="slide ranking-slide">
-    <img src="ranking.png" alt="">
-  </div>
-
-  <!-- 4. Instagram：3秒 -->
-  <div class="slide">
+    <!-- Instagram動画 -->
     <video
-      src="instagram.mp4"
-      autoplay
+      id="video"
       muted
+      autoplay
+      loop
       playsinline
-      loop>
+      preload="auto">
+
+      <source
+        src="instagram.mp4"
+        type="video/mp4">
+
     </video>
+
+
+    <!-- =========================
+         朝のスタッフ画面
+         ========================= -->
+
+    <div id="morning">
+
+      <!-- 上半分 -->
+      <div id="morning-message">
+
+        <div class="morning-greeting">
+          ☀️ おはようございます
+        </div>
+
+        <div
+          id="morning-text"
+          class="morning-text">
+
+          今日も一日、笑顔で頑張りましょう！
+
+        </div>
+
+      </div>
+
+
+      <!-- 下半分 -->
+      <div id="weather">
+
+        <div class="weather-title">
+          📍 奈良県北葛城郡広陵町　今日の天気
+        </div>
+
+        <div id="weather-content">
+
+          <div class="weather-error">
+            天気情報を取得しています…
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <!-- 閉店画面 -->
+    <div id="close">
+
+      <img
+        src="close.png"
+        alt="ご来店ありがとうございました">
+
+    </div>
+
+
+    <!-- 黒画面 -->
+    <div id="black"></div>
+
   </div>
 
-  <!-- 5. 支払い方法：3秒 -->
-  <div class="slide">
-    <img src="payment.png" alt="">
-  </div>
 
-  <!-- 6. フード：3秒 -->
-  <div class="slide">
-    <img src="food.png" alt="">
-  </div>
+  <script>
 
-  <!-- 7. デザート：3秒 -->
-  <div class="slide">
-    <img src="dessert.png" alt="">
-  </div>
+    /* =====================================================
+       設定
+       ===================================================== */
 
-  <!-- 8. 広陵限定メニュー：3秒 -->
-  <div class="slide">
-    <img src="koryo.png" alt="">
-  </div>
+    const SLIDE_TIME = 3000;
 
-</div>
+    const WEATHER_UPDATE_TIME =
+      30 * 60 * 1000;
 
 
-<!-- ==================================================
-     サイネージ制御
-================================================== -->
+    /*
+      奈良県北葛城郡広陵町付近
+    */
 
-<script>
-
-(function(){
-
-  /* ==============================
-     スライド取得
-  ============================== */
-
-  var all = [].slice.call(
-    document.querySelectorAll(".slide")
-  );
+    const WEATHER_LAT = 34.54274;
+    const WEATHER_LON = 135.750842;
 
 
-  /* ==============================
-     特別スライド
-  ============================== */
+    /* =====================================================
+       DOM
+       ===================================================== */
 
-  var drink =
-    document.querySelector(".drink-slide");
+    const slide =
+      document.getElementById("slide");
 
-  var ranking =
-    document.querySelector(".ranking-slide");
+    const video =
+      document.getElementById("video");
 
+    const morning =
+      document.getElementById("morning");
 
-  /* ==============================
-     状態
-  ============================== */
+    const morningText =
+      document.getElementById("morning-text");
 
-  var visible = [];
+    const weatherContent =
+      document.getElementById("weather-content");
 
-  var current = 0;
+    const closeScreen =
+      document.getElementById("close");
 
-  var timer = null;
-
-  /* 3秒 */
-  var SIX = 3000;
-
-  var mode = "day";
-
-  var lunch = false;
+    const blackScreen =
+      document.getElementById("black");
 
 
-  /* ==============================
-     毎月20日
-  ============================== */
+    /* =====================================================
+       スライド
+       ===================================================== */
 
-  function isDrinkDay(){
+    const slides = [
 
-    return new Date().getDate() === 20;
+      "payment.png",
 
-  }
+      "drink.png",
+
+      "ranking.png",
+
+      "instagram.mp4",
+
+      "payment.png",
+
+      "food.png",
+
+      "dessert.png",
+
+      "koryo.png"
+
+    ];
 
 
-  /* ==============================
-     日本の祝日判定
-  ============================== */
+    let currentSlide = 0;
 
-  function isJapaneseHoliday(date){
+    let currentMode = "";
 
-    var year = date.getFullYear();
-    var month = date.getMonth() + 1;
-    var day = date.getDate();
+    let slideTimer = null;
 
-    function d(y, m, d){
 
-      return y + "-" +
-        String(m).padStart(2,"0") + "-" +
-        String(d).padStart(2,"0");
+    /* =====================================================
+       朝のメッセージ
+       ===================================================== */
+
+    const morningMessages = [
+
+      "今日も一日、笑顔で頑張りましょう！",
+
+      "今日もよろしくお願いします！\n気持ちよくスタートしましょう。",
+
+      "お客様に喜んでいただける一日にしましょう！",
+
+      "今日もチームワークで頑張りましょう！",
+
+      "一人ひとりの笑顔がお店の雰囲気を作ります。\n今日もよろしくお願いします！",
+
+      "元気に丁寧な仕事でいきましょう！",
+
+      "今日も元気にいきましょう！",
+
+      "小さな気配りを大切に。\n今日もよろしくお願いします！",
+
+      "今日も素敵な一日にしましょう！",
+
+      "本日もよろしくお願いします。\n笑顔でお客様をお迎えしましょう！"
+
+    ];
+
+
+    /* =====================================================
+       日本時間の日付
+       ===================================================== */
+
+    function getLocalDateKey() {
+
+      const now = new Date();
+
+      const year =
+        now.getFullYear();
+
+      const month =
+        String(now.getMonth() + 1)
+          .padStart(2, "0");
+
+      const day =
+        String(now.getDate())
+          .padStart(2, "0");
+
+      return `${year}-${month}-${day}`;
+    }
+
+
+    /* =====================================================
+       朝メッセージ
+       その日1つをランダム選択
+       ===================================================== */
+
+    function setMorningMessage() {
+
+      const today =
+        getLocalDateKey();
+
+      const storageKey =
+        "babyfaceMorningMessage";
+
+      let saved = null;
+
+
+      try {
+
+        saved =
+          JSON.parse(
+            localStorage.getItem(storageKey)
+          );
+
+      } catch (e) {
+
+        saved = null;
+
+      }
+
+
+      /*
+        同じ日は同じメッセージ。
+        翌日になると変更。
+      */
+
+      if (
+        saved &&
+        saved.date === today &&
+        typeof saved.index === "number" &&
+        saved.index >= 0 &&
+        saved.index < morningMessages.length
+      ) {
+
+        morningText.textContent =
+          morningMessages[saved.index];
+
+        return;
+      }
+
+
+      const randomIndex =
+        Math.floor(
+          Math.random() *
+          morningMessages.length
+        );
+
+
+      morningText.textContent =
+        morningMessages[randomIndex];
+
+
+      try {
+
+        localStorage.setItem(
+
+          storageKey,
+
+          JSON.stringify({
+
+            date: today,
+
+            index: randomIndex
+
+          })
+
+        );
+
+      } catch (e) {
+
+        // 保存できなくても表示は継続
+
+      }
 
     }
 
 
-    function nthMonday(y, m, n){
+    /* =====================================================
+       天気コード
+       ===================================================== */
 
-      var date =
+    function weatherInfo(code) {
+
+      if (code === 0) {
+
+        return {
+          icon: "☀️",
+          text: "快晴"
+        };
+
+      }
+
+
+      if (code === 1) {
+
+        return {
+          icon: "🌤️",
+          text: "晴れ"
+        };
+
+      }
+
+
+      if (code === 2) {
+
+        return {
+          icon: "⛅",
+          text: "晴れ時々くもり"
+        };
+
+      }
+
+
+      if (code === 3) {
+
+        return {
+          icon: "☁️",
+          text: "くもり"
+        };
+
+      }
+
+
+      if (
+        code === 45 ||
+        code === 48
+      ) {
+
+        return {
+          icon: "🌫️",
+          text: "霧"
+        };
+
+      }
+
+
+      if (
+        code >= 51 &&
+        code <= 57
+      ) {
+
+        return {
+          icon: "🌦️",
+          text: "小雨"
+        };
+
+      }
+
+
+      if (
+        code >= 61 &&
+        code <= 67
+      ) {
+
+        return {
+          icon: "🌧️",
+          text: "雨"
+        };
+
+      }
+
+
+      if (
+        code >= 71 &&
+        code <= 77
+      ) {
+
+        return {
+          icon: "❄️",
+          text: "雪"
+        };
+
+      }
+
+
+      if (
+        code >= 80 &&
+        code <= 82
+      ) {
+
+        return {
+          icon: "🌦️",
+          text: "にわか雨"
+        };
+
+      }
+
+
+      if (
+        code >= 85 &&
+        code <= 86
+      ) {
+
+        return {
+          icon: "🌨️",
+          text: "にわか雪"
+        };
+
+      }
+
+
+      if (
+        code >= 95 &&
+        code <= 99
+      ) {
+
+        return {
+          icon: "⛈️",
+          text: "雷雨"
+        };
+
+      }
+
+
+      return {
+        icon: "🌤️",
+        text: "天気情報"
+      };
+
+    }
+
+
+    /* =====================================================
+       天気取得
+       ===================================================== */
+
+    async function loadWeather() {
+
+      weatherContent.innerHTML = `
+
+        <div class="weather-error">
+          天気情報を取得しています…
+        </div>
+
+      `;
+
+
+      const url =
+
+        "https://api.open-meteo.com/v1/forecast" +
+
+        "?latitude=" +
+        WEATHER_LAT +
+
+        "&longitude=" +
+        WEATHER_LON +
+
+        "&current=temperature_2m,weather_code" +
+
+        "&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max" +
+
+        "&timezone=Asia%2FTokyo" +
+
+        "&forecast_days=1";
+
+
+      try {
+
+        const response =
+          await fetch(
+            url,
+            {
+              cache: "no-store"
+            }
+          );
+
+
+        if (!response.ok) {
+
+          throw new Error(
+            "Weather API error: " +
+            response.status
+          );
+
+        }
+
+
+        const data =
+          await response.json();
+
+
+        const currentTemp =
+          data.current.temperature_2m;
+
+        const currentCode =
+          data.current.weather_code;
+
+        const maxTemp =
+          data.daily.temperature_2m_max[0];
+
+        const minTemp =
+          data.daily.temperature_2m_min[0];
+
+        const rainChance =
+          data.daily.precipitation_probability_max[0];
+
+
+        const info =
+          weatherInfo(currentCode);
+
+
+        weatherContent.innerHTML = `
+
+          <div class="weather-main">
+
+            <div class="weather-icon">
+              ${info.icon}
+            </div>
+
+            <div>
+
+              <div class="weather-condition">
+                ${info.text}
+              </div>
+
+              <div class="weather-temperature">
+                ${currentTemp}℃
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <div class="weather-details">
+
+            <div>
+              🌡️ 最高 ${maxTemp}℃
+            </div>
+
+            <div>
+              最低 ${minTemp}℃
+            </div>
+
+            <div>
+              ☔ 降水 ${rainChance}%
+            </div>
+
+          </div>
+
+
+          <div class="weather-updated">
+            現在の気温・今日の予報
+          </div>
+
+        `;
+
+      } catch (error) {
+
+        console.error(
+          "天気情報の取得に失敗しました。",
+          error
+        );
+
+
+        weatherContent.innerHTML = `
+
+          <div class="weather-error">
+
+            🌤️ 本日の天気情報を取得できませんでした。<br>
+            しばらくすると自動的に再取得します。
+
+          </div>
+
+        `;
+
+      }
+
+    }
+
+
+    /* =====================================================
+       朝
+       10:00〜10:59
+       ===================================================== */
+
+    function isMorningTime() {
+
+      const now = new Date();
+
+      return now.getHours() === 10;
+
+    }
+
+
+    /* =====================================================
+       閉店
+       23:00〜23:29
+       ===================================================== */
+
+    function isCloseTime() {
+
+      const now = new Date();
+
+      const hour =
+        now.getHours();
+
+      const minute =
+        now.getMinutes();
+
+
+      return (
+        hour === 23 &&
+        minute < 30
+      );
+
+    }
+
+
+    /* =====================================================
+       黒画面
+       23:30〜09:59
+       ===================================================== */
+
+    function isBlackTime() {
+
+      const now = new Date();
+
+      const hour =
+        now.getHours();
+
+
+      return (
+        hour >= 23 ||
+        hour < 10
+      );
+
+    }
+
+
+    /* =====================================================
+       祝日判定
+       ===================================================== */
+
+    function holiday(y, m, d) {
+
+      const date =
         new Date(
           y,
           m - 1,
-          1
+          d
         );
 
-      var firstMonday =
-        (8 - date.getDay()) % 7 + 1;
+      const day =
+        date.getDay();
 
-      return (
-        firstMonday +
-        (n - 1) * 7
-      );
 
-    }
+      /* 元日 */
 
-
-    function vernalEquinoxDay(y){
-
-      return Math.floor(
-
-        20.8431 +
-        0.242194 * (y - 1980) -
-        Math.floor(
-          (y - 1980) / 4
-        )
-
-      );
-
-    }
-
-
-    function autumnalEquinoxDay(y){
-
-      return Math.floor(
-
-        23.2488 +
-        0.242194 * (y - 1980) -
-        Math.floor(
-          (y - 1980) / 4
-        )
-
-      );
-
-    }
-
-
-    var holidays = {};
-
-
-    /* ------------------------------
-       固定祝日
-    ------------------------------ */
-
-    holidays[d(year,1,1)] = true;
-    holidays[d(year,2,11)] = true;
-    holidays[d(year,2,23)] = true;
-
-    holidays[d(year,4,29)] = true;
-    holidays[d(year,5,3)] = true;
-    holidays[d(year,5,4)] = true;
-    holidays[d(year,5,5)] = true;
-
-    holidays[d(year,8,11)] = true;
-
-    holidays[d(year,11,3)] = true;
-    holidays[d(year,11,23)] = true;
-
-
-    /* ------------------------------
-       春分の日
-    ------------------------------ */
-
-    holidays[
-      d(
-        year,
-        3,
-        vernalEquinoxDay(year)
-      )
-    ] = true;
-
-
-    /* ------------------------------
-       秋分の日
-    ------------------------------ */
-
-    holidays[
-      d(
-        year,
-        9,
-        autumnalEquinoxDay(year)
-      )
-    ] = true;
-
-
-    /* ------------------------------
-       成人の日
-       1月第2月曜日
-    ------------------------------ */
-
-    holidays[
-      d(
-        year,
-        1,
-        nthMonday(
-          year,
-          1,
-          2
-        )
-      )
-    ] = true;
-
-
-    /* ------------------------------
-       海の日
-       7月第3月曜日
-    ------------------------------ */
-
-    holidays[
-      d(
-        year,
-        7,
-        nthMonday(
-          year,
-          7,
-          3
-        )
-      )
-    ] = true;
-
-
-    /* ------------------------------
-       敬老の日
-       9月第3月曜日
-    ------------------------------ */
-
-    holidays[
-      d(
-        year,
-        9,
-        nthMonday(
-          year,
-          9,
-          3
-        )
-      )
-    ] = true;
-
-
-    /* ------------------------------
-       スポーツの日
-       10月第2月曜日
-    ------------------------------ */
-
-    holidays[
-      d(
-        year,
-        10,
-        nthMonday(
-          year,
-          10,
-          2
-        )
-      )
-    ] = true;
-
-
-    /* ------------------------------
-       国民の休日
-    ------------------------------ */
-
-    var checkDate =
-      new Date(
-        year,
-        0,
-        1
-      );
-
-
-    while(
-      checkDate.getFullYear() === year
-    ){
-
-      var key =
-        d(
-          checkDate.getFullYear(),
-          checkDate.getMonth() + 1,
-          checkDate.getDate()
-        );
-
-
-      if(!holidays[key]){
-
-        var previous =
-          new Date(checkDate);
-
-
-        previous.setDate(
-          previous.getDate() - 1
-        );
-
-
-        var next =
-          new Date(checkDate);
-
-
-        next.setDate(
-          next.getDate() + 1
-        );
-
-
-        var previousKey =
-          d(
-            previous.getFullYear(),
-            previous.getMonth() + 1,
-            previous.getDate()
-          );
-
-
-        var nextKey =
-          d(
-            next.getFullYear(),
-            next.getMonth() + 1,
-            next.getDate()
-          );
-
-
-        if(
-          holidays[previousKey] &&
-          holidays[nextKey]
-        ){
-
-          holidays[key] = true;
-
-        }
-
+      if (
+        m === 1 &&
+        d === 1
+      ) {
+        return true;
       }
 
 
-      checkDate.setDate(
-        checkDate.getDate() + 1
-      );
+      /* 成人の日 */
 
-    }
-
-
-    /* ------------------------------
-       振替休日
-    ------------------------------ */
-
-    var holidayKeys =
-      Object.keys(holidays);
-
-
-    holidayKeys.forEach(
-      function(key){
-
-        var parts =
-          key.split("-");
-
-
-        var hDate =
-          new Date(
-            Number(parts[0]),
-            Number(parts[1]) - 1,
-            Number(parts[2])
-          );
-
-
-        if(
-          hDate.getDay() === 0
-        ){
-
-          var substitute =
-            new Date(hDate);
-
-
-          substitute.setDate(
-            substitute.getDate() + 1
-          );
-
-
-          while(true){
-
-            var subKey =
-              d(
-                substitute.getFullYear(),
-                substitute.getMonth() + 1,
-                substitute.getDate()
-              );
-
-
-            if(
-              !holidays[subKey]
-            ){
-
-              holidays[subKey] =
-                true;
-
-              break;
-
-            }
-
-
-            substitute.setDate(
-              substitute.getDate() + 1
-            );
-
-          }
-
-        }
-
+      if (
+        m === 1 &&
+        day === 1 &&
+        d >= 8 &&
+        d <= 14
+      ) {
+        return true;
       }
-    );
 
 
-    return holidays[
-      d(
-        year,
-        month,
-        day
-      )
-    ] === true;
+      /* 建国記念の日 */
 
-  }
+      if (
+        m === 2 &&
+        d === 11
+      ) {
+        return true;
+      }
 
 
-  /* ==============================
-     平日11:00〜14:59
-     祝日は除外
-  ============================== */
+      /* 天皇誕生日 */
 
-  function isWeekdayLunchTime(){
+      if (
+        m === 2 &&
+        d === 23
+      ) {
+        return true;
+      }
 
-    var now =
-      new Date();
 
+      /* 春分の日 */
 
-    var day =
-      now.getDay();
+      if (m === 3) {
 
+        const spring =
+          Math.floor(
+            20.8431 +
+            0.242194 *
+            (y - 1980) -
+            Math.floor(
+              (y - 1980) / 4
+            )
+          );
 
-    var hour =
-      now.getHours();
 
-
-    var weekday =
-      day >= 1 &&
-      day <= 5;
-
-
-    var lunchTime =
-      hour >= 11 &&
-      hour < 15;
-
-
-    var holiday =
-      isJapaneseHoliday(now);
-
-
-    return (
-
-      weekday &&
-      lunchTime &&
-      !holiday
-
-    );
-
-  }
-
-
-  /* ==============================
-     閉店画像
-     
-     23:00〜23:29
-  ============================== */
-
-  function isCloseTime(){
-
-    var now =
-      new Date();
-
-
-    return (
-
-      now.getHours() === 23 &&
-      now.getMinutes() < 30
-
-    );
-
-  }
-
-
-  /* ==============================
-     黒画面
-     
-     23:30〜翌09:59
-  ============================== */
-
-  function isBlackTime(){
-
-    var now =
-      new Date();
-
-
-    var hour =
-      now.getHours();
-
-
-    return (
-
-      (
-        hour === 23 &&
-        now.getMinutes() >= 30
-      )
-
-      ||
-
-      hour < 10
-
-    );
-
-  }
-
-
-  /* ==============================
-     現在のモード
-  ============================== */
-
-  function getMode(){
-
-    if(
-      isCloseTime()
-    ){
-
-      return "close";
-
-    }
-
-
-    if(
-      isBlackTime()
-    ){
-
-      return "black";
-
-    }
-
-
-    return "day";
-
-  }
-
-
-  /* ==============================
-     表示するスライドを作る
-  ============================== */
-
-  function rebuild(){
-
-    visible =
-      all.filter(
-        function(slide){
-
-          /* ドリンクは毎月20日のみ */
-
-          if(
-            slide === drink
-          ){
-
-            return isDrinkDay();
-
-          }
-
-
+        if (d === spring) {
           return true;
-
         }
-      );
-
-  }
-
-
-  /* ==============================
-     黒画面
-  ============================== */
-
-  function createBlackScreen(){
-
-    if(
-      document.getElementById(
-        "black-screen"
-      )
-    ){
-
-      return;
-
-    }
-
-
-    var screen =
-      document.createElement(
-        "div"
-      );
-
-
-    screen.id =
-      "black-screen";
-
-
-    screen.style.position =
-      "fixed";
-
-    screen.style.left =
-      "0";
-
-    screen.style.top =
-      "0";
-
-    screen.style.width =
-      "100vw";
-
-    screen.style.height =
-      "100vh";
-
-    screen.style.background =
-      "#000";
-
-    screen.style.zIndex =
-      "99999";
-
-
-    document.body.appendChild(
-      screen
-    );
-
-  }
-
-
-  /* ==============================
-     黒画面を解除
-  ============================== */
-
-  function removeBlackScreen(){
-
-    var screen =
-      document.getElementById(
-        "black-screen"
-      );
-
-
-    if(screen){
-
-      screen.remove();
-
-    }
-
-  }
-
-
-  /* ==============================
-     閉店画像
-  ============================== */
-
-  function createCloseScreen(){
-
-    if(
-      document.getElementById(
-        "close-screen"
-      )
-    ){
-
-      return;
-
-    }
-
-
-    var screen =
-      document.createElement(
-        "div"
-      );
-
-
-    screen.id =
-      "close-screen";
-
-
-    screen.style.position =
-      "fixed";
-
-    screen.style.left =
-      "0";
-
-    screen.style.top =
-      "0";
-
-    screen.style.width =
-      "100vw";
-
-    screen.style.height =
-      "100vh";
-
-    screen.style.background =
-      "#fff";
-
-    screen.style.zIndex =
-      "99999";
-
-
-    var img =
-      document.createElement(
-        "img"
-      );
-
-
-    img.src =
-      "close.png";
-
-
-    img.alt =
-      "";
-
-
-    img.style.width =
-      "100%";
-
-    img.style.height =
-      "100%";
-
-    img.style.objectFit =
-      "contain";
-
-    img.style.objectPosition =
-      "center";
-
-
-    screen.appendChild(
-      img
-    );
-
-
-    document.body.appendChild(
-      screen
-    );
-
-  }
-
-
-  /* ==============================
-     閉店画像を解除
-  ============================== */
-
-  function removeCloseScreen(){
-
-    var screen =
-      document.getElementById(
-        "close-screen"
-      );
-
-
-    if(screen){
-
-      screen.remove();
-
-    }
-
-  }
-
-
-  /* ==============================
-     ランキング画像
-  ============================== */
-
-  function updateRankingImage(){
-
-    if(!ranking){
-
-      return;
-
-    }
-
-
-    var img =
-      ranking.querySelector(
-        "img"
-      );
-
-
-    if(!img){
-
-      return;
-
-    }
-
-
-    if(
-      isWeekdayLunchTime()
-    ){
-
-      img.src =
-        "lunch.png";
-
-      lunch =
-        true;
-
-    }else{
-
-      img.src =
-        "ranking.png";
-
-      lunch =
-        false;
-
-    }
-
-  }
-
-
-  /* ==============================
-     スライド表示
-  ============================== */
-
-  function show(i){
-
-    var currentMode =
-      getMode();
-
-
-    /* ==========================
-       閉店画像 / 黒画面
-    ========================== */
-
-    if(
-      currentMode !== "day"
-    ){
-
-      mode =
-        currentMode;
-
-
-      clearTimeout(
-        timer
-      );
-
-
-      all.forEach(
-        function(slide){
-
-          slide.classList.remove(
-            "active"
-          );
-
-
-          var video =
-            slide.querySelector(
-              "video"
-            );
-
-
-          if(video){
-
-            video.pause();
-
-            video.currentTime =
-              0;
-
-          }
-
-        }
-      );
-
-
-      removeCloseScreen();
-
-      removeBlackScreen();
-
-
-      if(
-        currentMode === "close"
-      ){
-
-        createCloseScreen();
-
-      }else{
-
-        createBlackScreen();
 
       }
 
 
-      return;
+      /* 昭和の日 */
+
+      if (
+        m === 4 &&
+        d === 29
+      ) {
+        return true;
+      }
+
+
+      /* 憲法記念日 */
+
+      if (
+        m === 5 &&
+        d === 3
+      ) {
+        return true;
+      }
+
+
+      /* みどりの日 */
+
+      if (
+        m === 5 &&
+        d === 4
+      ) {
+        return true;
+      }
+
+
+      /* こどもの日 */
+
+      if (
+        m === 5 &&
+        d === 5
+      ) {
+        return true;
+      }
+
+
+      /* 海の日 */
+
+      if (
+        m === 7 &&
+        day === 1 &&
+        d >= 15 &&
+        d <= 21
+      ) {
+        return true;
+      }
+
+
+      /* 山の日 */
+
+      if (
+        m === 8 &&
+        d === 11
+      ) {
+        return true;
+      }
+
+
+      /* 敬老の日 */
+
+      if (
+        m === 9 &&
+        day === 1 &&
+        d >= 15 &&
+        d <= 21
+      ) {
+        return true;
+      }
+
+
+      /* 秋分の日 */
+
+      if (m === 9) {
+
+        const autumn =
+          Math.floor(
+            23.2488 +
+            0.242194 *
+            (y - 1980) -
+            Math.floor(
+              (y - 1980) / 4
+            )
+          );
+
+
+        if (d === autumn) {
+          return true;
+        }
+
+      }
+
+
+      /* スポーツの日 */
+
+      if (
+        m === 10 &&
+        day === 1 &&
+        d >= 8 &&
+        d <= 14
+      ) {
+        return true;
+      }
+
+
+      /* 文化の日 */
+
+      if (
+        m === 11 &&
+        d === 3
+      ) {
+        return true;
+      }
+
+
+      /* 勤労感謝の日 */
+
+      if (
+        m === 11 &&
+        d === 23
+      ) {
+        return true;
+      }
+
+
+      return false;
 
     }
 
 
-    /* ==========================
-       昼間
-    ========================== */
+    /* =====================================================
+       ランキング / ランチ
+       ===================================================== */
 
-    mode =
-      "day";
+    function getRankingSlide() {
+
+      const now =
+        new Date();
+
+      const day =
+        now.getDay();
+
+      const hour =
+        now.getHours();
 
 
-    removeCloseScreen();
+      /*
+        月〜金
+        11:00〜14:59
+        祝日を除く
+      */
 
-    removeBlackScreen();
+      if (
+
+        day >= 1 &&
+        day <= 5 &&
+
+        hour >= 11 &&
+        hour < 15 &&
+
+        !holiday(
+          now.getFullYear(),
+          now.getMonth() + 1,
+          now.getDate()
+        )
+
+      ) {
+
+        return "lunch.png";
+
+      }
 
 
-    rebuild();
-
-
-    if(
-      !visible.length
-    ){
-
-      return;
+      return "ranking.png";
 
     }
 
 
-    if(
-      i >= visible.length
-    ){
+    /* =====================================================
+       現在のモード
+       ===================================================== */
 
-      i = 0;
+    function getMode() {
+
+      if (isMorningTime()) {
+        return "morning";
+      }
+
+
+      if (isCloseTime()) {
+        return "close";
+      }
+
+
+      if (isBlackTime()) {
+        return "black";
+      }
+
+
+      return "day";
 
     }
 
 
-    current =
-      i;
+    /* =====================================================
+       全画面非表示
+       ===================================================== */
+
+    function hideAll() {
+
+      slide.classList.remove("active");
+
+      video.classList.remove("active");
+
+      morning.classList.remove("active");
+
+      closeScreen.classList.remove("active");
+
+      blackScreen.classList.remove("active");
 
 
-    clearTimeout(
-      timer
-    );
+      video.pause();
 
 
-    /* ==========================
-       全スライド停止
-    ========================== */
+      if (slideTimer) {
 
-    all.forEach(
-      function(slide){
-
-        slide.classList.remove(
-          "active"
+        clearTimeout(
+          slideTimer
         );
 
-
-        var video =
-          slide.querySelector(
-            "video"
-          );
-
-
-        if(video){
-
-          video.pause();
-
-          video.currentTime =
-            0;
-
-        }
-
-      }
-    );
-
-
-    /* ==========================
-       ランキング画像更新
-    ========================== */
-
-    updateRankingImage();
-
-
-    /* ==========================
-       現在のスライド
-    ========================== */
-
-    var slide =
-      visible[current];
-
-
-    slide.classList.add(
-      "active"
-    );
-
-
-    /* ==========================
-       動画
-    ========================== */
-
-    var video =
-      slide.querySelector(
-        "video"
-      );
-
-
-    if(video){
-
-      video.currentTime =
-        0;
-
-
-      var p =
-        video.play();
-
-
-      if(p){
-
-        p.catch(
-          function(){}
-        );
+        slideTimer = null;
 
       }
 
-
-      video.onended =
-        function(){
-
-          show(
-
-            (current + 1) %
-            visible.length
-
-          );
-
-        };
+    }
 
 
-      /* Instagramも3秒で次へ */
+    /* =====================================================
+       朝画面
+       ===================================================== */
 
-      timer =
-        setTimeout(
+    function showMorning() {
 
-          function(){
+      hideAll();
 
-            if(
-              !video.ended
-            ){
+      morning.classList.add("active");
 
-              show(
+      setMorningMessage();
 
-                (current + 1) %
-                visible.length
+      loadWeather();
 
+    }
+
+
+    /* =====================================================
+       閉店画面
+       ===================================================== */
+
+    function showClose() {
+
+      hideAll();
+
+      closeScreen.classList.add("active");
+
+    }
+
+
+    /* =====================================================
+       黒画面
+       ===================================================== */
+
+    function showBlack() {
+
+      hideAll();
+
+      blackScreen.classList.add("active");
+
+    }
+
+
+    /* =====================================================
+       通常画面
+       ===================================================== */
+
+    function showDay() {
+
+      hideAll();
+
+      slide.classList.add("active");
+
+      playSlide(0);
+
+    }
+
+
+    /* =====================================================
+       スライド再生
+       ===================================================== */
+
+    function playSlide(index) {
+
+      const mode =
+        getMode();
+
+
+      if (mode !== "day") {
+        return;
+      }
+
+
+      currentSlide =
+        index;
+
+
+      let src =
+        slides[index];
+
+
+      /*
+        3枚目
+      */
+
+      if (index === 2) {
+
+        src =
+          getRankingSlide();
+
+      }
+
+
+      /*
+        Instagram動画
+      */
+
+      if (src === "instagram.mp4") {
+
+        slide.classList.remove("active");
+
+        video.classList.add("active");
+
+
+        video.currentTime = 0;
+
+
+        video.play()
+          .catch(() => {});
+
+
+        slideTimer =
+          setTimeout(
+
+            () => {
+
+              video.pause();
+
+              video.classList.remove(
+                "active"
               );
 
-            }
+              slide.classList.add(
+                "active"
+              );
 
-          },
 
-          SIX
+              playSlide(
+                (index + 1) %
+                slides.length
+              );
 
-        );
+            },
 
-
-    }else{
-
-
-      /* ========================
-         画像
-      ======================== */
-
-      timer =
-        setTimeout(
-
-          function(){
-
-            show(
-
-              (current + 1) %
-              visible.length
-
-            );
-
-          },
-
-          SIX
-
-        );
-
-    }
-
-  }
-
-
-  /* ==============================
-     時間帯・日付チェック
-  ============================== */
-
-  function checkMode(){
-
-    var nowMode =
-      getMode();
-
-
-    /* ==========================
-       閉店 / 黒画面 / 昼間
-    ========================== */
-
-    if(
-      nowMode !== mode
-    ){
-
-      mode =
-        nowMode;
-
-
-      current =
-        0;
-
-
-      show(
-        0
-      );
-
-
-      return;
-
-    }
-
-
-    if(
-      nowMode !== "day"
-    ){
-
-      return;
-
-    }
-
-
-    /* ==========================
-       ランチ時間変更
-    ========================== */
-
-    var nowLunch =
-      isWeekdayLunchTime();
-
-
-    if(
-      nowLunch !== lunch
-    ){
-
-      lunch =
-        nowLunch;
-
-
-      updateRankingImage();
-
-
-      current =
-        0;
-
-
-      show(
-        0
-      );
-
-
-      return;
-
-    }
-
-
-    /* ==========================
-       毎月20日のドリンク
-    ========================== */
-
-    var wantDrink =
-      isDrinkDay();
-
-
-    var hasDrink =
-      visible.indexOf(
-        drink
-      ) !== -1;
-
-
-    if(
-      wantDrink !== hasDrink
-    ){
-
-      current =
-        0;
-
-
-      show(
-        0
-      );
-
-    }
-
-  }
-
-
-  /* ==============================
-     初期化
-  ============================== */
-
-  rebuild();
-
-
-  mode =
-    getMode();
-
-
-  lunch =
-    isWeekdayLunchTime();
-
-
-  updateRankingImage();
-
-
-  show(
-    0
-  );
-
-
-  /* ==============================
-     10秒ごとに時間帯チェック
-  ============================== */
-
-  setInterval(
-
-    function(){
-
-      checkMode();
-
-    },
-
-    10000
-
-  );
-
-
-})();
-
-</script>
-
-
-<!-- ==================================================
-     フルスクリーン
-================================================== -->
-
-<script>
-
-(function(){
-
-
-  function goFullscreen(){
-
-    var el =
-      document.documentElement;
-
-
-    try{
-
-
-      if(
-        el.requestFullscreen
-      ){
-
-        var p =
-          el.requestFullscreen();
-
-
-        if(
-          p &&
-          p.catch
-        ){
-
-          p.catch(
-            function(){}
+            SLIDE_TIME
 
           );
 
-        }
 
-
-      }else if(
-        el.webkitRequestFullscreen
-      ){
-
-        el.webkitRequestFullscreen();
-
-
-      }else if(
-        el.webkitEnterFullscreen
-      ){
-
-        el.webkitEnterFullscreen();
+        return;
 
       }
 
 
-    }catch(e){}
+      /*
+        通常画像
+      */
 
-  }
+      video.classList.remove(
+        "active"
+      );
 
-
-  document.addEventListener(
-    "click",
-    goFullscreen,
-    false
-  );
-
-
-  document.addEventListener(
-    "touchend",
-    goFullscreen,
-    false
-  );
+      video.pause();
 
 
-})();
+      slide.src =
+        src;
 
-</script>
 
+      slide.classList.add(
+        "active"
+      );
+
+
+      slideTimer =
+        setTimeout(
+
+          () => {
+
+            playSlide(
+              (index + 1) %
+              slides.length
+            );
+
+          },
+
+          SLIDE_TIME
+
+        );
+
+    }
+
+
+    /* =====================================================
+       モード切替
+       ===================================================== */
+
+    function showMode(mode) {
+
+      currentMode =
+        mode;
+
+
+      if (mode === "morning") {
+
+        showMorning();
+
+        return;
+
+      }
+
+
+      if (mode === "close") {
+
+        showClose();
+
+        return;
+
+      }
+
+
+      if (mode === "black") {
+
+        showBlack();
+
+        return;
+
+      }
+
+
+      showDay();
+
+    }
+
+
+    /* =====================================================
+       時刻チェック
+       ===================================================== */
+
+    function checkTime() {
+
+      const mode =
+        getMode();
+
+
+      if (
+        mode !== currentMode
+      ) {
+
+        showMode(mode);
+
+      }
+
+    }
+
+
+    /* =====================================================
+       天気を30分ごとに更新
+       ===================================================== */
+
+    setInterval(
+
+      () => {
+
+        if (
+          currentMode === "morning"
+        ) {
+
+          loadWeather();
+
+        }
+
+      },
+
+      WEATHER_UPDATE_TIME
+
+    );
+
+
+    /* =====================================================
+       10秒ごとに時刻確認
+       ===================================================== */
+
+    setInterval(
+
+      () => {
+
+        checkTime();
+
+      },
+
+      10000
+
+    );
+
+
+    /* =====================================================
+       起動
+       ===================================================== */
+
+    checkTime();
+
+
+    /* =====================================================
+       フルスクリーン
+       ===================================================== */
+
+    document.addEventListener(
+
+      "click",
+
+      () => {
+
+        if (
+          document.fullscreenElement
+        ) {
+          return;
+        }
+
+
+        const element =
+          document.documentElement;
+
+
+        if (
+          element.requestFullscreen
+        ) {
+
+          element
+            .requestFullscreen()
+            .catch(() => {});
+
+        }
+
+      },
+
+      {
+        once: true
+      }
+
+    );
+
+
+    /* =====================================================
+       タッチでもフルスクリーン
+       ===================================================== */
+
+    document.addEventListener(
+
+      "touchstart",
+
+      () => {
+
+        if (
+          document.fullscreenElement
+        ) {
+          return;
+        }
+
+
+        const element =
+          document.documentElement;
+
+
+        if (
+          element.requestFullscreen
+        ) {
+
+          element
+            .requestFullscreen()
+            .catch(() => {});
+
+        }
+
+      },
+
+      {
+        once: true
+      }
+
+    );
+
+  </script>
 
 </body>
-
 </html>

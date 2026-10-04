@@ -379,25 +379,45 @@
        スライド
        ===================================================== */
 
-    const slides = [
+const baseSlides = [
 
-      "payment.png",
+  "payment.png",
 
-      "drink.png",
+  "ranking.png",
 
-      "ranking.png",
+  "instagram.mp4",
 
-      "instagram.mp4",
+  "payment.png",
 
-      "payment.png",
+  "food.png",
 
-      "food.png",
+  "dessert.png",
 
-      "dessert.png",
+  "koryo.png"
 
-      "koryo.png"
+];
 
-    ];
+
+/* =====================================================
+   ドリンク半額デー
+   毎月20日のみ表示
+   ===================================================== */
+
+function getSlides() {
+
+  const slides = [...baseSlides];
+
+  const now = new Date();
+
+  if (now.getDate() === 20) {
+
+    slides.splice(1, 0, "drink.png");
+
+  }
+
+  return slides;
+
+}
 
 
     let currentSlide = 0;
@@ -1283,123 +1303,132 @@
 
     function playSlide(index) {
 
-      const mode =
-        getMode();
+  const mode =
+    getMode();
 
 
-      if (mode !== "day") {
-        return;
-      }
+  if (mode !== "day") {
+    return;
+  }
 
 
-      currentSlide =
-        index;
+  const slides =
+    getSlides();
 
 
-      let src =
-        slides[index];
+  if (index >= slides.length) {
+    index = 0;
+  }
 
 
-      /*
-        3枚目
-      */
-
-      if (index === 2) {
-
-        src =
-          getRankingSlide();
-
-      }
+  currentSlide =
+    index;
 
 
-      /*
-        Instagram動画
-      */
-
-      if (src === "instagram.mp4") {
-
-        slide.classList.remove("active");
-
-        video.classList.add("active");
+  let src =
+    slides[index];
 
 
-        video.currentTime = 0;
+  /*
+    ランキング / ランチ
+  */
+
+  if (src === "ranking.png") {
+
+    src =
+      getRankingSlide();
+
+  }
 
 
-        video.play()
-          .catch(() => {});
+  /*
+    Instagram動画
+  */
+
+  if (src === "instagram.mp4") {
+
+    slide.classList.remove("active");
+
+    video.classList.add("active");
 
 
-        slideTimer =
-          setTimeout(
-
-            () => {
-
-              video.pause();
-
-              video.classList.remove(
-                "active"
-              );
-
-              slide.classList.add(
-                "active"
-              );
+    video.currentTime = 0;
 
 
-              playSlide(
-                (index + 1) %
-                slides.length
-              );
+    video.play()
+      .catch(() => {});
 
-            },
 
-            SLIDE_TIME
+    slideTimer =
+      setTimeout(
 
+        () => {
+
+          video.pause();
+
+          video.classList.remove(
+            "active"
+          );
+
+          slide.classList.add(
+            "active"
           );
 
 
-        return;
+          playSlide(
+            (index + 1) %
+            getSlides().length
+          );
 
-      }
+        },
 
+        SLIDE_TIME
 
-      /*
-        通常画像
-      */
-
-      video.classList.remove(
-        "active"
-      );
-
-      video.pause();
-
-
-      slide.src =
-        src;
-
-
-      slide.classList.add(
-        "active"
       );
 
 
-      slideTimer =
-        setTimeout(
+    return;
 
-          () => {
+  }
 
-            playSlide(
-              (index + 1) %
-              slides.length
-            );
 
-          },
+  /*
+    通常画像
+  */
 
-          SLIDE_TIME
+  video.classList.remove(
+    "active"
+  );
 
+  video.pause();
+
+
+  slide.src =
+    src;
+
+
+  slide.classList.add(
+    "active"
+  );
+
+
+  slideTimer =
+    setTimeout(
+
+      () => {
+
+        playSlide(
+          (index + 1) %
+          getSlides().length
         );
 
-    }
+      },
+
+      SLIDE_TIME
+
+    );
+
+}
 
 
     /* =====================================================

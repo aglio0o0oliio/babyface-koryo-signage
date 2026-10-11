@@ -1418,21 +1418,16 @@ function getSlides() {
   );
 
 
-  slideTimer =
-    setTimeout(
-
-      () => {
-
-        playSlide(
-          (index + 1) %
-          getSlides().length
-        );
-
-      },
-
-      SLIDE_TIME
-
-    );
+slideTimer =
+  setTimeout(
+    () => {
+      playSlide(
+        (index + 1) %
+        getSlides().length
+      );
+    },
+    src === "halloween-2026.png" ? 4000 : SLIDE_TIME
+  );
 
 }
 

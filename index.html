@@ -397,9 +397,7 @@ const baseSlides = [
 
   "dessert.png",
 
-  "koryo.png",
-
-  "halloween-2026.png"
+  "koryo.png"
 
 ];
 
@@ -409,11 +407,19 @@ const baseSlides = [
    毎月20日のみ表示
    ===================================================== */
 
-function getSlides() {
+function getSlides(now = new Date()) {
 
   const slides = [...baseSlides];
 
-  const now = new Date();
+  // 2026年限定。端末のタイムゾーンにかかわらず日本時間で掲載終了。
+  const japanDate = new Date(now.getTime() + 9 * 60 * 60 * 1000);
+
+  if (
+    japanDate.getUTCFullYear() === 2026 &&
+    now.getTime() < Date.parse("2026-11-01T00:00:00+09:00")
+  ) {
+    slides.push("halloween-2026.png");
+  }
 
   if (now.getDate() === 20) {
 

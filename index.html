@@ -55,7 +55,8 @@
       display: none;
     }
 
-    .slide[src="halloween-2026.png"] {
+    .slide[src="halloween-2026.png"],
+    .slide[src="seasonal-shrimp-2026.jpg"] {
       object-fit: contain;
     }
 
@@ -409,7 +410,12 @@ const baseSlides = [
 
 function getSlides(now = new Date()) {
 
-  const slides = [...baseSlides];
+  const slides = baseSlides.map(src =>
+    src === "koryo.png" &&
+    now.getTime() >= Date.parse("2026-11-01T00:00:00+09:00")
+      ? "seasonal-shrimp-2026.jpg"
+      : src
+  );
 
   // 2026年限定。端末のタイムゾーンにかかわらず日本時間で掲載終了。
   const japanDate = new Date(now.getTime() + 9 * 60 * 60 * 1000);

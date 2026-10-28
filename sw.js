@@ -1,5 +1,5 @@
 // Bump VERSION whenever HTML or media is published, including same-name images.
-const VERSION = "2026-10-28-v2";
+const VERSION = "2026-10-28-v3";
 const CACHE_PREFIX = "babyface-koryo-";
 const CACHE_NAME = CACHE_PREFIX + VERSION;
 const scopeURL = new URL(self.registration.scope);
@@ -45,10 +45,13 @@ self.addEventListener("activate", event => {
     await self.clients.claim();
     // Old HTML has no update listener. Navigate it once when this worker activates.
     const windows = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
-    await Promise.all(windows.filter(client => {
+    windows.filter(client => {
       const url = new URL(client.url);
       return url.origin === scopeURL.origin && url.pathname.startsWith(scopeURL.pathname);
-    }).map(client => client.navigate(client.url).catch(error => console.warn(error))));
+    }).forEach(client => {
+      // Do not wait for navigation here: its fetch may wait for activation to finish.
+      client.navigate(client.url).catch(error => console.warn(error));
+    });
   })());
 });
 

@@ -5,7 +5,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const source = fs.readFileSync(path.join(__dirname, '../sw.js'), 'utf8');
 const base = 'https://example.com/babyface-koryo-signage/';
-const name = 'babyface-koryo-2026-10-28-v2';
+const name = 'babyface-koryo-2026-10-28-v3';
 function setup() {
   const handlers = {}, stores = new Map(), requests = [], navigated = [];
   let network = async url => new Response(String(url), { headers: { 'Content-Type': String(url).endsWith('.mp4') ? 'video/mp4' : 'text/plain' } });

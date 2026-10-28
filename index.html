@@ -1633,6 +1633,24 @@ slideTimer =
 
     );
 
+
+    /* サービスワーカーの登録・更新（表示スケジュールとは独立） */
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register("./sw.js", { updateViaCache: "none" })
+        .then(registration => {
+          const checkForUpdate = () => registration.update().catch(error => {
+            console.warn("サービスワーカーの更新確認に失敗しました。", error);
+          });
+          checkForUpdate();
+          setInterval(checkForUpdate, 60 * 60 * 1000);
+          window.addEventListener("online", checkForUpdate);
+          document.addEventListener("visibilitychange", () => {
+            if (document.visibilityState === "visible") checkForUpdate();
+          });
+        })
+        .catch(error => console.warn("サービスワーカーの登録に失敗しました。", error));
+    }
+
   </script>
 
 </body>

@@ -1,5 +1,5 @@
 // Bump VERSION whenever HTML or media is published, including same-name images.
-const VERSION = "2026-10-28-v3";
+const VERSION = "2026-11-16-price-revision-v1";
 const CACHE_PREFIX = "babyface-koryo-";
 const CACHE_NAME = CACHE_PREFIX + VERSION;
 const scopeURL = new URL(self.registration.scope);
@@ -9,7 +9,8 @@ const CORE = ["index.html", "manifest.webmanifest"];
 const MEDIA = [
   "payment.png", "ranking.png", "instagram.mp4", "food.png", "dessert.png",
   "drink.png", "koryo.png", "lunch.png", "close.png",
-  "halloween-2026.png", "seasonal-shrimp-2026.jpg"
+  "halloween-2026.png", "seasonal-shrimp-2026.jpg",
+  "price-revision-2026-12-01.png"
 ];
 const ASSETS = new Set([...CORE, ...MEDIA].map(assetURL));
 

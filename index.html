@@ -56,7 +56,8 @@
     }
 
     .slide[src="halloween-2026.png"],
-    .slide[src="seasonal-shrimp-2026.jpg"] {
+    .slide[src="seasonal-shrimp-2026.jpg"],
+    .slide[src="price-revision-2026-12-01.png"] {
       object-fit: contain;
     }
 
@@ -398,7 +399,9 @@ const baseSlides = [
 
   "dessert.png",
 
-  "koryo.png"
+  "koryo.png",
+
+  "price-revision-2026-12-01.png"
 
 ];
 
@@ -1438,7 +1441,8 @@ slideTimer =
         getSlides().length
       );
     },
-    src === "halloween-2026.png" ? 4000 : SLIDE_TIME
+    src === "price-revision-2026-12-01.png" ? 10000 :
+      src === "halloween-2026.png" ? 4000 : SLIDE_TIME
   );
 
 }

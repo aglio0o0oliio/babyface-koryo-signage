@@ -1,5 +1,5 @@
 // Bump VERSION whenever HTML or media is published, including same-name images.
-const VERSION = "2026-11-16-price-revision-v1";
+const VERSION = "2026-11-16-notice-schedules-v2";
 const CACHE_PREFIX = "babyface-koryo-";
 const CACHE_NAME = CACHE_PREFIX + VERSION;
 const scopeURL = new URL(self.registration.scope);

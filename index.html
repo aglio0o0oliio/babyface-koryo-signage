@@ -413,7 +413,17 @@ const baseSlides = [
 
 function getSlides(now = new Date()) {
 
-  const slides = baseSlides.map(src =>
+  const timestamp = now.getTime();
+  const slides = baseSlides.filter(src => {
+    if (src === "price-revision-2026-12-01.png") {
+      return timestamp >= Date.parse("2026-11-21T00:00:00+09:00") &&
+        timestamp < Date.parse("2027-01-01T00:00:00+09:00");
+    }
+    if (src === "food.png" || src === "dessert.png") {
+      return timestamp < Date.parse("2026-12-01T00:00:00+09:00");
+    }
+    return true;
+  }).map(src =>
     src === "koryo.png" &&
     now.getTime() >= Date.parse("2026-11-01T00:00:00+09:00")
       ? "seasonal-shrimp-2026.jpg"
